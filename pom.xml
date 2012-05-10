@@ -4,7 +4,7 @@
 
     <groupId>dk.statsbiblioteket.mediaplatform</groupId>
     <artifactId>bitrepository-url-client</artifactId>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
 
   <parent>
     <groupId>dk.statsbiblioteket.sbprojects</groupId>
