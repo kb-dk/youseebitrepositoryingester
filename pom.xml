@@ -29,8 +29,8 @@
   
   <scm>
     <url>https://github.com/mikisseth/bitrepository-url-client</url>
-    <connection>git://github.com/mikisseth/bitrepository-url-client.git</connection>
-    <developerConnection>git@github.com:mikisseth/bitrepository-url-client.git</developerConnection>
+    <connection>scm:git:git://github.com/mikisseth/bitrepository-url-client.git</connection>
+    <developerConnection>scm:git:git@github.com:mikisseth/bitrepository-url-client.git</developerConnection>
   </scm>
 
     <dependencies>
