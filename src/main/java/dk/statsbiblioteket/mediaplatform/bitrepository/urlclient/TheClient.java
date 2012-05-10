@@ -1,4 +1,4 @@
-package dk.statsbiblioteket.medie.bitmag;
+package dk.statsbiblioteket.mediaplatform.bitrepository.urlclient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
