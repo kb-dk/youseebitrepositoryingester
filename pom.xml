@@ -8,6 +8,31 @@
     <artifactId>url-client</artifactId>
     <version>0.1-SNAPSHOT</version>
 
+  <parent>
+    <groupId>dk.statsbiblioteket.sbprojects</groupId>
+    <artifactId>sbprojects-parent</artifactId>
+    <version>3</version>
+  </parent>
+
+  <repositories>
+    <repository>
+      <id>sbprojects-nexus</id>
+      <url>https://sbprojects.statsbiblioteket.dk/nexus/content/groups/public</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  
+  <scm>
+    <url>https://github.com/mikisseth/bitrepository-url-client</url>
+    <connection>git://github.com/mikisseth/bitrepository-url-client.git</connection>
+    <developerConnection>git@github.com:mikisseth/bitrepository-url-client.git</developerConnection>
+  </scm>
+
     <dependencies>
       <dependency>
         <groupId>org.json</groupId>
