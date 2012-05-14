@@ -2,12 +2,16 @@ package dk.statsbiblioteket.mediaplatform.bitrepository.urlclient;
 
 import org.bitrepository.client.eventhandler.EventHandler;
 import org.bitrepository.client.eventhandler.OperationEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *	Event handler for the asynchronous GetFileIDs method.   
  */
 public class PutFileEventHandler implements EventHandler {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+    
 	private Object finishLock;
 	private int finishStatusCode;
 	private String finishMessage;
@@ -19,6 +23,7 @@ public class PutFileEventHandler implements EventHandler {
 	@SuppressWarnings("rawtypes")
     @Override
 	public void handleEvent(OperationEvent event) {
+	    log.debug("Got event: " + event.toString());
 		switch(event.getType()) {
 		case IDENTIFY_REQUEST_SENT:
 		    break;
