@@ -2,11 +2,10 @@ package dk.statsbiblioteket.mediaplatform.bitrepository.urlclient;
 
 import java.io.File;
 
-import org.bitrepository.protocol.utils.LogbackConfigLoader;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TheClient {
+public class TheMockClient {
     
     private static final int CONFIG_DIR_ARG_INDEX = 0;
     private static final int FILE_LOCATION_ARG_INDEX = 1;
@@ -14,29 +13,19 @@ public class TheClient {
     private static final int CHECKSUM_ARG_INDEX = 3;
     private static final int FILESIZE_ARG_INDEX = 4;
     
-    private TheClient() {}
+    private TheMockClient() {}
     
     public static void main(String[] args) {
         verifyInputParams(args);
-        setupLogging(args[CONFIG_DIR_ARG_INDEX]);
+        
+        JSONObject obj = new JSONObject();
         try {
-            FilePutter putter = new FilePutter(args[CONFIG_DIR_ARG_INDEX], args[FILEID_ARG_INDEX], 
-                    args[FILE_LOCATION_ARG_INDEX], args[CHECKSUM_ARG_INDEX], 
-                    Long.parseLong(args[FILESIZE_ARG_INDEX]));  
-            putter.putFile();
-            
-            JSONObject obj = new JSONObject();
-            try {
-                obj.put("UrlToFile", putter.getUrl());
-            } catch (JSONException e) {
-                System.exit(ClientExitCodes.JSON_ERROR);
-            }
-            System.out.println(obj.toString());
-            System.exit(ClientExitCodes.SUCCESS);
-        } catch (ClientFailureException e) {
-            System.out.println(e.getMessage());
-            System.exit(e.getExitCode());
+            obj.put("UrlToFile", "http://bitrepository.org/" + args[FILEID_ARG_INDEX]);
+        } catch (JSONException e) {
+            System.exit(ClientExitCodes.JSON_ERROR);
         }
+        System.out.println(obj.toString());
+        System.exit(ClientExitCodes.SUCCESS);
     }
     
     
@@ -83,13 +72,5 @@ public class TheClient {
             System.exit(ClientExitCodes.CHECKSUM_ERROR);
         } 
     }
-    
-    private static void setupLogging(String configDir) {
-        try {
-            new LogbackConfigLoader(configDir + "/logback.xml");
-        } catch (Exception e) {
-            // Yes, indeed do nothing, don't want to pollute stdout. 
-            // Or perhaps we should return an error code indicating log setup failure?
-        } 
-    }
+
 }
