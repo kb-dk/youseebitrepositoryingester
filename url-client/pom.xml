@@ -7,105 +7,13 @@
   <version>0.3-SNAPSHOT</version>
 
   <parent>
-    <groupId>dk.statsbiblioteket.sbprojects</groupId>
-    <artifactId>sbprojects-parent</artifactId>
-    <version>3</version>
+    <groupId>dk.statsbiblioteket.mediaplatform</groupId>
+    <artifactId>url-client</artifactId>
+    <version>0.3-SNAPSHOT</version>
   </parent>
 
-  <description>Used for statsbiblioteket.dk's Medieplatform. Initially for ingesting files in the bitrepository,
-    later also to retrieve files again.
+  <description>Used for statsbiblioteket.dk's Medieplatform for ingesting files in the bit repository.
   </description>
-  <url>https://sbforge.org/display/BITMAG</url>
-
-  <organization>
-    <name>The State and University Library, The Royal Library and The State Archives, Denmark</name>
-    <url>http://statsbiblioteket.dk</url>
-  </organization>
-
-  <repositories>
-    <repository>
-      <id>sbprojects-nexus</id>
-      <url>https://sbprojects.statsbiblioteket.dk/nexus/content/groups/public</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-
-  <scm>
-    <url>https://github.com/mikisseth/bitrepository-url-client</url>
-    <connection>scm:git:git://github.com/mikisseth/bitrepository-url-client.git</connection>
-    <developerConnection>scm:git:git@github.com:mikisseth/bitrepository-url-client.git</developerConnection>
-  </scm>
-
-  <developers>
-    <developer>
-      <name>Mikis Seth Sørensen</name>
-      <email>mss@statsbiblioteket.dk</email>
-      <organization>The Danish State and University Library</organization>
-      <organizationUrl>http://en.statsbiblioteket.dk</organizationUrl>
-      <roles>
-        <role>Project Manager</role>
-      </roles>
-    </developer>
-    <developer>
-      <name>Kim Teglgaard Christensen   </name>
-      <email>ktc@statsbiblioteket.dk</email>
-      <organization>The Danish State and University Library</organization>
-      <organizationUrl>http://en.statsbiblioteket.dk</organizationUrl>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-  </developers>
-
-  <inceptionYear>2012</inceptionYear>
-
-  <licenses>
-    <license>
-      <name>Apache 2</name>
-      <distribution>repo</distribution>
-      <url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
-    </license>
-  </licenses>
-
-  <issueManagement>
-    <system>JIRA</system>
-    <url>https://sbforge.org/jira/browse/BITMAG</url>
-  </issueManagement>
-
-  <ciManagement>
-    <system>Jenkins</system>
-    <url>https://sbforge.org/jenkins/</url>
-  </ciManagement>
-
-  <distributionManagement>
-    <site>
-      <id>sbforge-nexus</id>
-      <name>SBForge Maven site</name>
-      <url>dav:https://sbforge.org/maven/bitrepository/sites/reference/${project.version}</url>
-    </site>
-  </distributionManagement>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <configuration>
-          <generateBundle>true</generateBundle>
-          <failIfWarning>true</failIfWarning>
-          <useMissingFile>true</useMissingFile>
-          <extraExtensions>
-            <xsd>xml</xsd>
-          </extraExtensions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
   <dependencies>
     <dependency>
@@ -123,28 +31,6 @@
       <artifactId>bitrepository-modifying-client</artifactId>
       <version>${bitrepository-version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jul-to-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>log4j-over-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
   </dependencies>
-
-  <properties>
-    <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <bitrepository-version>0.13</bitrepository-version>
-    <slf4j.version>1.6.4</slf4j.version>
-  </properties>
 
 </project>

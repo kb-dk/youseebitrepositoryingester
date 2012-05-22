@@ -1,10 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>dk.statsbiblioteket.mediaplatform</groupId>
-  <artifactId>bitrepository-url-client</artifactId>
+  <artifactId>url-client</artifactId>
   <version>0.3-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>url-client</name>
 
   <parent>
     <groupId>dk.statsbiblioteket.sbprojects</groupId>
@@ -12,10 +15,9 @@
     <version>3</version>
   </parent>
 
-  <description>Used for statsbiblioteket.dk's Medieplatform. Initially for ingesting files in the bitrepository,
-    later also to retrieve files again.
+  <description>Used for accessing fom the statsbiblioteket.dk's Medieplatform, to a Bit repository.
   </description>
-  <url>https://sbforge.org/display/BITMAG</url>
+  <url>https://sbprojects.statsbiblioteket.dk/display/INFRA/Bitmagasin+klient</url>
 
   <organization>
     <name>The State and University Library, Denmark</name>
@@ -36,93 +38,17 @@
   </repositories>
 
   <scm>
-    <url>https://github.com/mikisseth/bitrepository-url-client</url>
-    <connection>scm:git:git://github.com/mikisseth/bitrepository-url-client.git</connection>
-    <developerConnection>scm:git:git@github.com:mikisseth/bitrepository-url-client.git</developerConnection>
+    <url>https://github.com/statsbiblioteket/bitrepository-url-client</url>
+    <connection>scm:git:git://github.com/statsbiblioteket/bitrepository-url-client.git</connection>
+    <developerConnection>scm:git:git@github.com:statsbiblioteket/bitrepository-url-client.git</developerConnection>
   </scm>
 
-  <developers>
-    <developer>
-      <name>Mikis Seth Sørensen</name>
-      <email>mss@statsbiblioteket.dk</email>
-      <organization>The Danish State and University Library</organization>
-      <organizationUrl>http://en.statsbiblioteket.dk</organizationUrl>
-      <roles>
-        <role>Project Manager</role>
-      </roles>
-    </developer>
-    <developer>
-      <name>Kim Teglgaard Christensen   </name>
-      <email>ktc@statsbiblioteket.dk</email>
-      <organization>The Danish State and University Library</organization>
-      <organizationUrl>http://en.statsbiblioteket.dk</organizationUrl>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-  </developers>
-
-  <inceptionYear>2012</inceptionYear>
-
-  <licenses>
-    <license>
-      <name>Apache 2</name>
-      <distribution>repo</distribution>
-      <url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
-    </license>
-  </licenses>
-
-  <issueManagement>
-    <system>JIRA</system>
-    <url>https://sbforge.org/jira/browse/BITMAG</url>
-  </issueManagement>
-
-  <ciManagement>
-    <system>Jenkins</system>
-    <url>https://sbforge.org/jenkins/</url>
-  </ciManagement>
-
-  <distributionManagement>
-    <site>
-      <id>sbforge-nexus</id>
-      <name>SBForge Maven site</name>
-      <url>dav:https://sbforge.org/maven/bitrepository/sites/reference/${project.version}</url>
-    </site>
-  </distributionManagement>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <configuration>
-          <generateBundle>true</generateBundle>
-          <failIfWarning>true</failIfWarning>
-          <useMissingFile>true</useMissingFile>
-          <extraExtensions>
-            <xsd>xml</xsd>
-          </extraExtensions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <modules>
+    <module>url-client</module>
+    <module>httpresolver</module>
+  </modules>
 
   <dependencies>
-    <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
-      <version>20090211</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bitrepository.reference</groupId>
-      <artifactId>bitrepository-core</artifactId>
-      <version>${bitrepository-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bitrepository.reference</groupId>
-      <artifactId>bitrepository-modifying-client</artifactId>
-      <version>${bitrepository-version}</version>
-    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jul-to-slf4j</artifactId>
@@ -140,6 +66,51 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>license-maven-plugin</artifactId>
+              <configuration>
+                <generateBundle>true</generateBundle>
+                <failIfWarning>true</failIfWarning>
+                <useMissingFile>true</useMissingFile>
+                <extraExtensions>
+                  <xsd>xml</xsd>
+                </extraExtensions>
+              </configuration>
+            </plugin>
+        <!--This plugin's configuration is used to store Eclipse m2e settings 
+          only. It has no influence on the Maven build itself. -->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <versionRange>[2.1,)</versionRange>
+                    <goals>
+                      <goal>copy</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  
   <properties>
     <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
