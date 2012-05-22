@@ -44,7 +44,7 @@
   </scm>
 
   <modules>
-    <module>url-client</module>
+    <module>url-put-client</module>
     <module>httpresolver</module>
   </modules>
 
