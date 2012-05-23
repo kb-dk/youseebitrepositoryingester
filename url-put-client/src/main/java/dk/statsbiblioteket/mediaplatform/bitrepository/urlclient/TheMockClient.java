@@ -5,6 +5,8 @@ import java.io.File;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import dk.statsbiblioteket.mediaplatform.bitrepository.urlclient.ClientExitCodes.ExitCodes;
+
 public class TheMockClient {
     
     private static final int CONFIG_DIR_ARG_INDEX = 0;
@@ -22,10 +24,10 @@ public class TheMockClient {
         try {
             obj.put("UrlToFile", "http://bitrepository.org/" + args[FILEID_ARG_INDEX]);
         } catch (JSONException e) {
-            System.exit(ClientExitCodes.JSON_ERROR);
+            System.exit(ExitCodes.JSON_ERROR.getCode());
         }
         System.out.println(obj.toString());
-        System.exit(ClientExitCodes.SUCCESS);
+        System.exit(ExitCodes.SUCCESS.getCode());
     }
     
     
@@ -42,34 +44,34 @@ public class TheMockClient {
         if(args.length != 5) {
             System.out.println("Unexpected number of arguments, got " + args.length + " but expected 5");
             System.out.println("Expecting: ConfigDirPath FileUrl FileID FileChecksum FileSize");
-            System.exit(ClientExitCodes.INPUT_PARAM_COUNT_ERROR);
+            System.exit(ExitCodes.INPUT_PARAM_COUNT_ERROR.getCode());
         }
         
         File configDir = new File(args[CONFIG_DIR_ARG_INDEX]);
         if(!configDir.isDirectory()) {
             System.out.println("Config dir parameter (parm " + CONFIG_DIR_ARG_INDEX + ") is no directory!");
-            System.exit(ClientExitCodes.CONFIG_DIR_ERROR);
+            System.exit(ExitCodes.CONFIG_DIR_ERROR.getCode());
         }
         if(!configDir.canRead()) {
             System.out.println("Config dir '" + args[CONFIG_DIR_ARG_INDEX] + "' cannot be read!");
-            System.exit(ClientExitCodes.CONFIG_DIR_ERROR);
+            System.exit(ExitCodes.CONFIG_DIR_ERROR.getCode());
         }
         
         try {
                 Long.parseLong(args[FILESIZE_ARG_INDEX]);
         } catch (Exception e) {
             System.out.println("Failed to parse filesize argument as long.");
-            System.exit(ClientExitCodes.FILE_SIZE_ERROR);
+            System.exit(ExitCodes.FILE_SIZE_ERROR.getCode());
         }
         
         String checksum = args[CHECKSUM_ARG_INDEX];
         if((checksum.length() % 2) != 0) {
             System.out.println("Checksum argument does not contain an even number of characters.");
-            System.exit(ClientExitCodes.CHECKSUM_ERROR);
+            System.exit(ExitCodes.CHECKSUM_ERROR.getCode());
         }
         if(!checksum.matches("^\\p{XDigit}*$")) {
             System.out.println("Checksum argument contains non hexadecimal value!");
-            System.exit(ClientExitCodes.CHECKSUM_ERROR);
+            System.exit(ExitCodes.CHECKSUM_ERROR.getCode());
         } 
     }
 
