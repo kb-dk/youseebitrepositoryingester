@@ -21,7 +21,6 @@ public class HttpResolverService {
 
     public HttpResolverService() {
         connectionMapping = ConnectionMapperFactory.getConnectionMapping();
-         
     }
     
     @GET
@@ -50,7 +49,6 @@ public class HttpResolverService {
                         is.close();
                         is.notifyAll();
                     }
-                    
                 } catch (Exception e) {
                     throw new WebApplicationException(e);
                 }
