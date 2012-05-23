@@ -1,0 +1,121 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>dk.statsbiblioteket.mediaplatform</groupId>
+  <artifactId>url-client</artifactId>
+  <version>0.3-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>url-client</name>
+
+  <parent>
+    <groupId>dk.statsbiblioteket.sbprojects</groupId>
+    <artifactId>sbprojects-parent</artifactId>
+    <version>3</version>
+  </parent>
+
+  <description>Used for accessing fom the statsbiblioteket.dk's Medieplatform, to a Bit repository.
+  </description>
+  <url>https://sbprojects.statsbiblioteket.dk/display/INFRA/Bitmagasin+klient</url>
+
+  <organization>
+    <name>The State and University Library, Denmark</name>
+    <url>http://statsbiblioteket.dk</url>
+  </organization>
+
+  <repositories>
+    <repository>
+      <id>sbprojects-nexus</id>
+      <url>https://sbprojects.statsbiblioteket.dk/nexus/content/groups/public</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <scm>
+    <url>https://github.com/statsbiblioteket/bitrepository-url-client</url>
+    <connection>scm:git:git://github.com/statsbiblioteket/bitrepository-url-client.git</connection>
+    <developerConnection>scm:git:git@github.com:statsbiblioteket/bitrepository-url-client.git</developerConnection>
+  </scm>
+
+  <modules>
+    <module>url-put-client</module>
+    <module>httpresolver</module>
+  </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>license-maven-plugin</artifactId>
+              <configuration>
+                <generateBundle>true</generateBundle>
+                <failIfWarning>true</failIfWarning>
+                <useMissingFile>true</useMissingFile>
+                <extraExtensions>
+                  <xsd>xml</xsd>
+                </extraExtensions>
+              </configuration>
+            </plugin>
+        <!--This plugin's configuration is used to store Eclipse m2e settings 
+          only. It has no influence on the Maven build itself. -->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <versionRange>[2.1,)</versionRange>
+                    <goals>
+                      <goal>copy</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  
+  <properties>
+    <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <bitrepository-version>0.13</bitrepository-version>
+    <slf4j.version>1.6.4</slf4j.version>
+  </properties>
+
+</project>

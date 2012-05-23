@@ -10,40 +10,13 @@
   <name>httpresolver</name>
 
   <parent>
-    <groupId>dk.statsbiblioteket.sbprojects</groupId>
-    <artifactId>sbprojects-parent</artifactId>
-    <version>3</version>
+    <groupId>dk.statsbiblioteket.mediaplatform</groupId>
+    <artifactId>url-client</artifactId>
+    <version>0.3-SNAPSHOT</version>
   </parent>
 
-  <description>Used for statsbiblioteket.dk's Medieplatform. Initially for ingesting files in the bitrepository,
-    later also to retrieve files again.
+  <description>Used for statsbiblioteket.dk's Medieplatform. Initially for acessing files in the bitrepository.
   </description>
-  <url>https://sbforge.org/display/BITMAG</url>
-
-  <organization>
-    <name>The State and University Library, The Royal Library and The State Archives, Denmark</name>
-    <url>http://statsbiblioteket.dk</url>
-  </organization>
-
-  <repositories>
-    <repository>
-      <id>sbprojects-nexus</id>
-      <url>https://sbprojects.statsbiblioteket.dk/nexus/content/groups/public</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-
-  <scm>
-    <url>https://github.com/statsbiblioteket/bitrepository-url-client</url>
-    <connection>scm:git:git://github.com/statsbiblioteket/bitrepository-url-client.git</connection>
-    <developerConnection>scm:git:git@github.com:statsbiblioteket/bitrepository-url-client.git</developerConnection>
-  </scm>
-
   <dependencies>
     <dependency>
       <groupId>javax</groupId>
@@ -71,37 +44,10 @@
       <artifactId>bitrepository-core</artifactId>
       <version>${bitrepository-version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jul-to-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>log4j-over-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
   </dependencies>
 
-  <build>
+ <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-          <compilerArguments>
-            <endorseddirs>${endorsed.dir}</endorseddirs>
-          </compilerArguments>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
@@ -136,43 +82,5 @@
         </executions>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <!--This plugin's configuration is used to store Eclipse m2e settings 
-          only. It has no influence on the Maven build itself. -->
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <versionRange>[2.1,)</versionRange>
-                    <goals>
-                      <goal>copy</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-  
-  <properties>
-    <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <bitrepository-version>0.13</bitrepository-version>
-    <slf4j.version>1.6.4</slf4j.version>
-  </properties>
-
+ </build>
 </project>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>dk.statsbiblioteket.mediaplatform</groupId>
+  <artifactId>url-put-client</artifactId>
+  <version>0.3-SNAPSHOT</version>
+
+  <parent>
+    <groupId>dk.statsbiblioteket.mediaplatform</groupId>
+    <artifactId>url-client</artifactId>
+    <version>0.3-SNAPSHOT</version>
+  </parent>
+
+  <description>Used for statsbiblioteket.dk's Medieplatform for ingesting files in the bit repository.
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20090211</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bitrepository.reference</groupId>
+      <artifactId>bitrepository-core</artifactId>
+      <version>${bitrepository-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bitrepository.reference</groupId>
+      <artifactId>bitrepository-modifying-client</artifactId>
+      <version>${bitrepository-version}</version>
+    </dependency>
+  </dependencies>
+
+</project>
