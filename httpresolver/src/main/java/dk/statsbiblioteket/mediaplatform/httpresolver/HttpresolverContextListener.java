@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * 2) In time shut the service down in a proper manner, so no threads will be orphaned.   
  */
 public class HttpresolverContextListener implements ServletContextListener {
-    //private final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Do initialization work  
@@ -23,7 +23,7 @@ public class HttpresolverContextListener implements ServletContextListener {
     @SuppressWarnings("unused")
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-       /* String confDir = sce.getServletContext().getInitParameter("HttpResolverConfigDir");
+       String confDir = sce.getServletContext().getInitParameter("HttpResolverConfigDir");
         if(confDir == null) {
         	throw new RuntimeException("No configuration directory specified!");
         }
@@ -32,7 +32,7 @@ public class HttpresolverContextListener implements ServletContextListener {
 			new LogbackConfigLoader(confDir + "/logback.xml");
 		} catch (Exception e) {
 			log.info("Failed to read log configuration file. Falling back to default.");
-		}*/ 
+		} 
         //BasicClientFactory.init(confDir);
         //BasicClient client = BasicClientFactory.getInstance();
         //log.debug("Servlet context initialized");
