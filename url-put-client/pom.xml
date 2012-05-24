@@ -5,7 +5,7 @@
   <parent>
     <groupId>dk.statsbiblioteket.mediaplatform</groupId>
     <artifactId>url-client</artifactId>
-    <version>0.3</version>
+    <version>0.4-SNAPSHOT</version>
   </parent>
   <artifactId>url-put-client</artifactId>
 

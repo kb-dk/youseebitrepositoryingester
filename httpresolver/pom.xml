@@ -3,7 +3,7 @@
 
   <groupId>dk.statsbiblioteket.mediaplatform</groupId>
   <artifactId>httpresolver</artifactId>
-  <version>0.1</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>war</packaging>
 
   <name>httpresolver</name>
@@ -11,7 +11,7 @@
   <parent>
     <groupId>dk.statsbiblioteket.mediaplatform</groupId>
     <artifactId>url-client</artifactId>
-    <version>0.3</version>
+    <version>0.4-SNAPSHOT</version>
   </parent>
 
   <description>Used for statsbiblioteket.dk's Medieplatform. Initially for acessing files in the bitrepository.
