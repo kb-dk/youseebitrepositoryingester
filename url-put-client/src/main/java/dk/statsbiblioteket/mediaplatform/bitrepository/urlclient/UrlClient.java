@@ -6,7 +6,7 @@ import org.bitrepository.protocol.utils.LogbackConfigLoader;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TheClient {
+public class UrlClient {
     
     private static final int CONFIG_DIR_ARG_INDEX = 0;
     private static final int FILE_LOCATION_ARG_INDEX = 1;
@@ -14,7 +14,7 @@ public class TheClient {
     private static final int CHECKSUM_ARG_INDEX = 3;
     private static final int FILESIZE_ARG_INDEX = 4;
     
-    private TheClient() {}
+    private UrlClient() {}
     
     public static void main(String[] args) {
         verifyInputParams(args);
