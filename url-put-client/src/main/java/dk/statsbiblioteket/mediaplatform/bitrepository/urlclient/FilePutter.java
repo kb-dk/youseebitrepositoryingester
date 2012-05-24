@@ -58,7 +58,7 @@ public class FilePutter {
             throws ClientFailureException {
         SettingsProvider settingsLoader = new SettingsProvider(new XMLFileSettingsLoader(configDir));
         settings = settingsLoader.getSettings();
-        
+        settings.setComponentID(CLIENT_ID);
         this.fileID = fileID;
         if(!fileID.matches(settings.getCollectionSettings().getProtocolSettings().getAllowedFileIDPattern())) {
             throw new ClientFailureException("The fileID is not allowed. FileID must match: " + 
@@ -79,7 +79,8 @@ public class FilePutter {
         MessageAuthenticator authenticator = new BasicMessageAuthenticator(permissionStore);
         MessageSigner signer = new BasicMessageSigner();
         OperationAuthorizor authorizer = new BasicOperationAuthorizor(permissionStore);
-        SecurityManager securityManager = new BasicSecurityManager(settings.getCollectionSettings(), CLIENT_CERTIFICATE_FILE,
+        SecurityManager securityManager = new BasicSecurityManager(settings.getCollectionSettings(), 
+                configDir + "/" + CLIENT_CERTIFICATE_FILE,
                 authenticator, signer, authorizer, permissionStore, CLIENT_ID);
         putFileClient = ModifyComponentFactory.getInstance().retrievePutClient(settings, securityManager, 
                 CLIENT_ID);

@@ -60,11 +60,15 @@ public class PutFileEventHandler implements EventHandler {
     }
 
     private void finish() {
-        finishLock.notifyAll();
+        synchronized (finishLock) {
+            finishLock.notifyAll();    
+        }
     }
 
     public void waitForFinish() throws InterruptedException {
-        finishLock.wait();
+        synchronized (finishLock) {
+            finishLock.wait();            
+        }
     }
 
     public ExitCodes getStatusCode() {
