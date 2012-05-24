@@ -6,6 +6,8 @@ import org.bitrepository.protocol.utils.LogbackConfigLoader;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import dk.statsbiblioteket.mediaplatform.bitrepository.urlclient.ClientExitCodes.ExitCodes;
+
 public class UrlClient {
     
     private static final int CONFIG_DIR_ARG_INDEX = 0;
@@ -17,9 +19,9 @@ public class UrlClient {
     private UrlClient() {}
     
     public static void main(String[] args) {
-        verifyInputParams(args);
-        setupLogging(args[CONFIG_DIR_ARG_INDEX]);
         try {
+            verifyInputParams(args);
+            setupLogging(args[CONFIG_DIR_ARG_INDEX]);
             FilePutter putter = new FilePutter(args[CONFIG_DIR_ARG_INDEX], args[FILEID_ARG_INDEX], 
                     args[FILE_LOCATION_ARG_INDEX], args[CHECKSUM_ARG_INDEX], 
                     Long.parseLong(args[FILESIZE_ARG_INDEX]));  
@@ -29,16 +31,15 @@ public class UrlClient {
             try {
                 obj.put("UrlToFile", putter.getUrl());
             } catch (JSONException e) {
-                System.exit(ClientExitCodes.JSON_ERROR);
+                System.exit(ExitCodes.JSON_ERROR.getCode());
             }
             System.out.println(obj.toString());
-            System.exit(ClientExitCodes.SUCCESS);
+            System.exit(ExitCodes.SUCCESS.getCode());
         } catch (ClientFailureException e) {
             System.out.println(e.getMessage());
-            System.exit(e.getExitCode());
+            System.exit(e.getExitCode().getCode());
         }
     }
-    
     
     /**
      * Method to verify the input parameters
@@ -49,38 +50,36 @@ public class UrlClient {
      * - The length and content of the checksum parameter  
      * If validation fails error is printed to console and program is exited. 
      */
-    private static void verifyInputParams(String[] args) {
+    private static void verifyInputParams(String[] args) throws ClientFailureException {
         if(args.length != 5) {
-            System.out.println("Unexpected number of arguments, got " + args.length + " but expected 5");
-            System.out.println("Expecting: ConfigDirPath FileUrl FileID FileChecksum FileSize");
-            System.exit(ClientExitCodes.INPUT_PARAM_COUNT_ERROR);
+            throw new ClientFailureException("Unexpected number of arguments, got " + args.length + " but expected 5" + 
+                    "Expecting: ConfigDirPath FileUrl FileID FileChecksum FileSize", 
+                    ExitCodes.INPUT_PARAM_COUNT_ERROR);
         }
         
         File configDir = new File(args[CONFIG_DIR_ARG_INDEX]);
         if(!configDir.isDirectory()) {
-            System.out.println("Config dir parameter (parm " + CONFIG_DIR_ARG_INDEX + ") is no directory!");
-            System.exit(ClientExitCodes.CONFIG_DIR_ERROR);
+            throw new ClientFailureException("Config dir parameter (parm " + CONFIG_DIR_ARG_INDEX + ") is no directory!", 
+                    ExitCodes.CONFIG_DIR_ERROR);
         }
         if(!configDir.canRead()) {
-            System.out.println("Config dir '" + args[CONFIG_DIR_ARG_INDEX] + "' cannot be read!");
-            System.exit(ClientExitCodes.CONFIG_DIR_ERROR);
+            throw new ClientFailureException("Config dir '" + args[CONFIG_DIR_ARG_INDEX] + "' cannot be read!",
+                    ExitCodes.CONFIG_DIR_ERROR);
         }
         
         try {
-                Long.parseLong(args[FILESIZE_ARG_INDEX]);
+            Long.parseLong(args[FILESIZE_ARG_INDEX]);
         } catch (Exception e) {
-            System.out.println("Failed to parse filesize argument as long.");
-            System.exit(ClientExitCodes.FILE_SIZE_ERROR);
+            throw new ClientFailureException("Failed to parse filesize argument as long.", ExitCodes.FILE_SIZE_ERROR);
         }
         
         String checksum = args[CHECKSUM_ARG_INDEX];
         if((checksum.length() % 2) != 0) {
-            System.out.println("Checksum argument does not contain an even number of characters.");
-            System.exit(ClientExitCodes.CHECKSUM_ERROR);
+            throw new ClientFailureException("Checksum argument does not contain an even number of characters.", 
+                    ExitCodes.CHECKSUM_ERROR);
         }
         if(!checksum.matches("^\\p{XDigit}*$")) {
-            System.out.println("Checksum argument contains non hexadecimal value!");
-            System.exit(ClientExitCodes.CHECKSUM_ERROR);
+            throw new ClientFailureException("Checksum argument contains non hexadecimal value!", ExitCodes.CHECKSUM_ERROR);
         } 
     }
     
