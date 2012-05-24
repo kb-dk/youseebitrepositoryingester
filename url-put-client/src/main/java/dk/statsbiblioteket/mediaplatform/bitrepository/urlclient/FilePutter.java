@@ -26,6 +26,8 @@ import org.bitrepository.protocol.utils.Base16Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.statsbiblioteket.mediaplatform.bitrepository.urlclient.ClientExitCodes.ExitCodes;
+
 /**
  * Class handling putting of a file this includes
  * - Loading of settings from configuration directory
@@ -61,13 +63,13 @@ public class FilePutter {
         if(!fileID.matches(settings.getCollectionSettings().getProtocolSettings().getAllowedFileIDPattern())) {
             throw new ClientFailureException("The fileID is not allowed. FileID must match: " + 
                     settings.getCollectionSettings().getProtocolSettings().getAllowedFileIDPattern(), 
-                    ClientExitCodes.ILLEGAL_FILEID);
+                    ExitCodes.ILLEGAL_FILEID);
         }
         
         try {
             fileURL = new URL(url);
         } catch (MalformedURLException e) {
-            throw new ClientFailureException("Malformed URL for filelocation", ClientExitCodes.URL_ERROR);
+            throw new ClientFailureException("Malformed URL for filelocation", ExitCodes.URL_ERROR);
         }
         
         this.checksum = checksum;
@@ -103,11 +105,11 @@ public class FilePutter {
         }
         try {
             handler.waitForFinish();
-            if(handler.getStatusCode() != ClientExitCodes.SUCCESS) {
+            if(handler.getStatusCode() != ExitCodes.SUCCESS) {
                 throw new ClientFailureException(handler.getFinishMessage(), handler.getStatusCode());
             }
         } catch (InterruptedException e) {
-            throw new ClientFailureException("Client was interrupted", ClientExitCodes.CLIENT_PUT_ERROR); 
+            throw new ClientFailureException("Client was interrupted", ExitCodes.CLIENT_PUT_ERROR); 
         }
     }
     
