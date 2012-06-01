@@ -1,8 +1,6 @@
 package dk.statsbiblioteket.mediaplatform.bitrepository.urlclient;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
+import dk.statsbiblioteket.mediaplatform.bitrepository.urlclient.ClientExitCodes.ExitCodes;
 import org.bitrepository.bitrepositoryelements.ChecksumDataForFileTYPE;
 import org.bitrepository.bitrepositoryelements.ChecksumSpecTYPE;
 import org.bitrepository.bitrepositoryelements.ChecksumType;
@@ -26,7 +24,8 @@ import org.bitrepository.protocol.utils.Base16Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.statsbiblioteket.mediaplatform.bitrepository.urlclient.ClientExitCodes.ExitCodes;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Class handling putting of a file this includes
@@ -69,7 +68,7 @@ public class FilePutter {
         try {
             fileURL = new URL(url);
         } catch (MalformedURLException e) {
-            throw new ClientFailureException("Malformed URL for filelocation", ExitCodes.URL_ERROR);
+            throw new ClientFailureException("Malformed URL for filelocation: " + url, ExitCodes.URL_ERROR);
         }
         
         this.checksum = checksum;
@@ -98,11 +97,12 @@ public class FilePutter {
         ChecksumSpecTYPE checksumSpec = new ChecksumSpecTYPE();
         checksumSpec.setChecksumType(ChecksumType.MD5);
         checksumData.setChecksumSpec(checksumSpec);
-        
+
         try {
             putFileClient.putFile(fileURL, fileID, fileSize, checksumData, null, handler, "Initial ingest of file");
         } catch (OperationFailedException e) {
-            // Never happens, OperationFailedException is not thrown any more..
+            // Never happens, OperationFailedException is not thrown any more in the newer versions of the bit
+            // repository.
         }
         try {
             handler.waitForFinish();

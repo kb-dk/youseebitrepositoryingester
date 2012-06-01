@@ -4,10 +4,10 @@
 
   <parent>
     <groupId>dk.statsbiblioteket.mediaplatform</groupId>
-    <artifactId>url-client</artifactId>
+    <artifactId>bitrepository-url-client</artifactId>
     <version>0.4-SNAPSHOT</version>
   </parent>
-  <artifactId>url-put-client</artifactId>
+  <artifactId>bitrepository-ingester</artifactId>
 
   <description>Used for statsbiblioteket.dk's Medieplatform for ingesting files in the bit repository.
   </description>
@@ -37,6 +37,15 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.bitrepository.reference</groupId>
+      <artifactId>bitrepository-modifying-client</artifactId>
+      <version>${bitrepository-version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
@@ -49,6 +58,12 @@
       <artifactId>jaccept-gui</artifactId>
       <version>0.2</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>testng</artifactId>
+          <groupId>org.testng</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 

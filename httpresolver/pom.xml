@@ -2,15 +2,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>dk.statsbiblioteket.mediaplatform</groupId>
-  <artifactId>httpresolver</artifactId>
+  <artifactId>bitrepository-http-resolver</artifactId>
   <version>0.2-SNAPSHOT</version>
   <packaging>war</packaging>
 
-  <name>httpresolver</name>
+  <name>bitrepository-http-resolver</name>
 
   <parent>
     <groupId>dk.statsbiblioteket.mediaplatform</groupId>
-    <artifactId>url-client</artifactId>
+    <artifactId>bitrepository-url-client</artifactId>
     <version>0.4-SNAPSHOT</version>
   </parent>
 

@@ -1,26 +1,37 @@
 package dk.statsbiblioteket.mediaplatform.bitrepository.urlclient;
 
-import java.io.File;
-
+import dk.statsbiblioteket.mediaplatform.bitrepository.urlclient.ClientExitCodes.ExitCodes;
 import org.bitrepository.protocol.utils.LogbackConfigLoader;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import dk.statsbiblioteket.mediaplatform.bitrepository.urlclient.ClientExitCodes.ExitCodes;
+import java.io.File;
 
+/**
+ * The main executable class for storeing files in a configured bit repository.
+ */
 public class UrlClient {
-    
-    private static final int CONFIG_DIR_ARG_INDEX = 0;
-    private static final int FILE_LOCATION_ARG_INDEX = 1;
-    private static final int FILEID_ARG_INDEX = 2;
-    private static final int CHECKSUM_ARG_INDEX = 3;
-    private static final int FILESIZE_ARG_INDEX = 4;
+    public static final int CONFIG_DIR_ARG_INDEX = 0;
+    public static final int FILE_LOCATION_ARG_INDEX = 1;
+    public static final int FILEID_ARG_INDEX = 2;
+    public static final int CHECKSUM_ARG_INDEX = 3;
+    public static final int FILESIZE_ARG_INDEX = 4;
+
+    private final static Logger log = LoggerFactory.getLogger(UrlClient.class);
     
     private UrlClient() {}
     
     public static void main(String[] args) {
         try {
             verifyInputParams(args);
+        } catch (ClientFailureException e) {
+            System.out.println(e.getMessage());
+            System.exit(e.getExitCode().getCode());
+        }
+
+        try {
             setupLogging(args[CONFIG_DIR_ARG_INDEX]);
             FilePutter putter = new FilePutter(args[CONFIG_DIR_ARG_INDEX], args[FILEID_ARG_INDEX], 
                     args[FILE_LOCATION_ARG_INDEX], args[CHECKSUM_ARG_INDEX], 
@@ -36,6 +47,7 @@ public class UrlClient {
             System.out.println(obj.toString());
             System.exit(ExitCodes.SUCCESS.getCode());
         } catch (ClientFailureException e) {
+            log.error("File:" + args[FILEID_ARG_INDEX] + " Failed to ingest file: " + args[FILE_LOCATION_ARG_INDEX], e);
             System.out.println(e.getMessage());
             System.exit(e.getExitCode().getCode());
         }
@@ -58,28 +70,37 @@ public class UrlClient {
         }
         
         File configDir = new File(args[CONFIG_DIR_ARG_INDEX]);
+        if(!configDir.exists()) {
+            throw new ClientFailureException("Config dir (parm " + CONFIG_DIR_ARG_INDEX + ": " +
+                    configDir.getAbsolutePath() + ") doesn't exist!",
+                    ExitCodes.CONFIG_DIR_ERROR);
+        }
         if(!configDir.isDirectory()) {
-            throw new ClientFailureException("Config dir parameter (parm " + CONFIG_DIR_ARG_INDEX + ") is no directory!", 
+            throw new ClientFailureException("Config dir (parm " + CONFIG_DIR_ARG_INDEX + ": " + configDir +
+                    ") is not a directory!",
                     ExitCodes.CONFIG_DIR_ERROR);
         }
         if(!configDir.canRead()) {
-            throw new ClientFailureException("Config dir '" + args[CONFIG_DIR_ARG_INDEX] + "' cannot be read!",
+            throw new ClientFailureException("Config dir '" + configDir + "' cannot be read!",
                     ExitCodes.CONFIG_DIR_ERROR);
         }
         
         try {
             Long.parseLong(args[FILESIZE_ARG_INDEX]);
         } catch (Exception e) {
-            throw new ClientFailureException("Failed to parse filesize argument as long.", ExitCodes.FILE_SIZE_ERROR);
+            throw new ClientFailureException("Failed to parse filesize argument " + args[FILESIZE_ARG_INDEX] +
+                    " as long.", ExitCodes.FILE_SIZE_ERROR);
         }
         
         String checksum = args[CHECKSUM_ARG_INDEX];
         if((checksum.length() % 2) != 0) {
-            throw new ClientFailureException("Checksum argument does not contain an even number of characters.", 
+            throw new ClientFailureException("Checksum argument " + checksum +
+                    " does not contain an even number of characters.",
                     ExitCodes.CHECKSUM_ERROR);
         }
         if(!checksum.matches("^\\p{XDigit}*$")) {
-            throw new ClientFailureException("Checksum argument contains non hexadecimal value!", ExitCodes.CHECKSUM_ERROR);
+            throw new ClientFailureException("Checksum argument " + checksum +
+                    " contains non hexadecimal value!", ExitCodes.CHECKSUM_ERROR);
         } 
     }
     

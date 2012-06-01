@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>dk.statsbiblioteket.mediaplatform</groupId>
-  <artifactId>url-client</artifactId>
+  <artifactId>bitrepository-url-client</artifactId>
   <version>0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
 
@@ -62,6 +62,14 @@
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
       <version>${slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.5.2</version>
+      <scope>test</scope>
+
     </dependency>
   </dependencies>
 
