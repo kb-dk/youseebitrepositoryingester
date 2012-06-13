@@ -4,7 +4,6 @@
   <groupId>dk.statsbiblioteket.medieplatform</groupId>
   <artifactId>yousee-bitrepository-ingester</artifactId>
   <version>0.4-SNAPSHOT</version>
-  <packaging>pom</packaging>
 
   <name>Yousee Bitrepository Ingester</name>
 
@@ -48,9 +47,9 @@
   </repositories>
 
   <scm>
-    <url>https://github.com/statsbiblioteket/bitrepository-url-client</url>
-    <connection>scm:git:git://github.com/statsbiblioteket/bitrepository-url-client.git</connection>
-    <developerConnection>scm:git:git@github.com:statsbiblioteket/bitrepository-url-client.git</developerConnection>
+    <url>https://github.com/statsbiblioteket/yousee-bitrepository-ingester</url>
+    <connection>scm:git:git://github.com/statsbiblioteket/yousee-bitrepository-ingester.git</connection>
+    <developerConnection>scm:git:git@github.com:statsbiblioteket/yousee-bitrepository-ingester.git</developerConnection>
   </scm>
 
   <dependencies>

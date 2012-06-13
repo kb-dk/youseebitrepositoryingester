@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.TimeUnit;
 
-public class UrlClientTest extends DefaultFixtureClientTest {
+public class IngesterTest extends DefaultFixtureClientTest {
     public static final String CONFIG_DIR_ARG = "target/testclasses/config";
     public static final String FILEID_ARG = DEFAULT_FILE_ID;
     public static final String FILE_LOCATION_ARG = "file://src/test/resources/test-files/" + DEFAULT_FILE_ID;
@@ -21,9 +21,6 @@ public class UrlClientTest extends DefaultFixtureClientTest {
     public static final String FILESIZE_ARG = "7";
 
     protected TestPutFileMessageFactory messageFactory;
-
-    @Override
-    protected
 
     @BeforeMethod(alwaysRun=true)
     public void initialise() throws Exception {
@@ -40,12 +37,12 @@ public class UrlClientTest extends DefaultFixtureClientTest {
         addStep("Request the ingest of a file.",
                 "A IdentifyPillarsForPutFileRequest should be sent to the pillar.");
         String[] args = new String[5];
-        args[UrlClient.CONFIG_DIR_ARG_INDEX]= CONFIG_DIR_ARG;
-        args[UrlClient.FILEID_ARG_INDEX]= FILEID_ARG;
-        args[UrlClient.FILE_LOCATION_ARG_INDEX] = FILE_LOCATION_ARG;
-        args[UrlClient.CHECKSUM_ARG_INDEX]= CHECKSUM_ARG;
-        args[UrlClient.FILESIZE_ARG_INDEX] = FILESIZE_ARG;
-        UrlClient.main(args);
+        args[Ingester.CONFIG_DIR_ARG_INDEX]= CONFIG_DIR_ARG;
+        args[Ingester.FILEID_ARG_INDEX]= FILEID_ARG;
+        args[Ingester.FILE_LOCATION_ARG_INDEX] = FILE_LOCATION_ARG;
+        args[Ingester.CHECKSUM_ARG_INDEX]= CHECKSUM_ARG;
+        args[Ingester.FILESIZE_ARG_INDEX] = FILESIZE_ARG;
+        Ingester.main(args);
 
         IdentifyPillarsForPutFileRequest receivedIdentifyRequestMessage = collectionDestination.waitForMessage(
                 IdentifyPillarsForPutFileRequest.class);
@@ -54,8 +51,8 @@ public class UrlClientTest extends DefaultFixtureClientTest {
                         receivedIdentifyRequestMessage.getCorrelationID(),
                         receivedIdentifyRequestMessage.getReplyTo(),
                         receivedIdentifyRequestMessage.getTo(),
-                        args[UrlClient.FILEID_ARG_INDEX],
-                        Long.parseLong(args[UrlClient.FILESIZE_ARG_INDEX]),
+                        args[Ingester.FILEID_ARG_INDEX],
+                        Long.parseLong(args[Ingester.FILESIZE_ARG_INDEX]),
                         receivedIdentifyRequestMessage.getAuditTrailInformation(),
                         TEST_CLIENT_ID
                 ));
@@ -77,7 +74,7 @@ public class UrlClientTest extends DefaultFixtureClientTest {
                             receivedPutFileRequest.getCorrelationID(),
                             receivedPutFileRequest.getFileAddress(),
                             receivedPutFileRequest.getFileSize(),
-                            args[UrlClient.FILEID_ARG_INDEX],
+                            args[Ingester.FILEID_ARG_INDEX],
                             receivedPutFileRequest.getAuditTrailInformation(),
                             TEST_CLIENT_ID
                     ));

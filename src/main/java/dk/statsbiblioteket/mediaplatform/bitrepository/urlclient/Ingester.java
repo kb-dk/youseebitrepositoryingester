@@ -10,18 +10,18 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 /**
- * The main executable class for storeing files in a configured bit repository.
+ * The main executable class for ingesting files in a configured bit repository.
  */
-public class UrlClient {
+public class Ingester {
     public static final int CONFIG_DIR_ARG_INDEX = 0;
     public static final int FILE_LOCATION_ARG_INDEX = 1;
     public static final int FILEID_ARG_INDEX = 2;
     public static final int CHECKSUM_ARG_INDEX = 3;
     public static final int FILESIZE_ARG_INDEX = 4;
 
-    private final static Logger log = LoggerFactory.getLogger(UrlClient.class);
+    private final static Logger log = LoggerFactory.getLogger(Ingester.class);
     
-    private UrlClient() {}
+    private Ingester() {}
     
     public static void main(String[] args) {
         try {
