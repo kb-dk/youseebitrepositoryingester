@@ -1,5 +1,6 @@
 package dk.statsbiblioteket.mediaplatform.bitrepository.urlclient;
 
+import java.util.concurrent.TimeUnit;
 import org.bitrepository.bitrepositorymessages.IdentifyPillarsForPutFileRequest;
 import org.bitrepository.bitrepositorymessages.IdentifyPillarsForPutFileResponse;
 import org.bitrepository.bitrepositorymessages.PutFileFinalResponse;
@@ -9,12 +10,9 @@ import org.bitrepository.modify.putfile.TestPutFileMessageFactory;
 import org.bitrepository.protocol.utils.LogbackConfigLoader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import java.util.concurrent.TimeUnit;
 
 public class IngesterTest extends DefaultFixtureClientTest {
-    public static final String CONFIG_DIR_ARG = "target/testclasses/config";
+    public static final String CONFIG_DIR_ARG = "target/test-classes/config";
     public static final String FILEID_ARG = DEFAULT_FILE_ID;
     public static final String FILE_LOCATION_ARG = "file://src/test/resources/test-files/" + DEFAULT_FILE_ID;
     public static final String CHECKSUM_ARG = "AA";
@@ -28,7 +26,7 @@ public class IngesterTest extends DefaultFixtureClientTest {
         messageFactory = new TestPutFileMessageFactory(settings.getCollectionID());
     }
 
-    @Test
+    //@Test
     public void testClient() throws Exception {
         addDescription("Tests whether a file can be ingested through the client on a single pillar");
         settings.getCollectionSettings().getClientSettings().getPillarIDs().clear();
