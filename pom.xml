@@ -47,9 +47,9 @@
   </repositories>
 
   <scm>
-    <url>https://github.com/statsbiblioteket/yousee-bitrepository-ingester</url>
-    <connection>scm:git:git://github.com/statsbiblioteket/yousee-bitrepository-ingester.git</connection>
-    <developerConnection>scm:git:git@github.com:statsbiblioteket/yousee-bitrepository-ingester.git</developerConnection>
+    <url>https://github.com/statsbiblioteket/youseebitrepositoryingester</url>
+    <connection>scm:git:git://github.com/statsbiblioteket/youseebitrepositoryingester.git</connection>
+    <developerConnection>scm:git:git@github.com:statsbiblioteket/youseebitrepositoryingester.git</developerConnection>
   </scm>
 
   <dependencies>
