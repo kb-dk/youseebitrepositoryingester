@@ -105,12 +105,11 @@ public class Ingester {
         } 
     }
     
-    private static void setupLogging(String configDir) {
+    private static void setupLogging(String configDir) throws ClientFailureException {
         try {
             new LogbackConfigLoader(configDir + "/logback.xml");
         } catch (Exception e) {
-            // Yes, indeed do nothing, don't want to pollute stdout. 
-            // Or perhaps we should return an error code indicating log setup failure?
+            throw new ClientFailureException("Logging setup failed!", ExitCodes.LOGGING_ERROR);
         } 
     }
 }
