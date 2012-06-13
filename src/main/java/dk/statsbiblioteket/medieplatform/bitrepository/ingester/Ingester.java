@@ -109,7 +109,7 @@ public class Ingester {
     
     private static void setupLogging(String configDir) throws ClientFailureException {
         try {
-            //new LogbackConfigLoader(configDir + "/logback.xml");
+            new LogbackConfigLoader(configDir + "/logback.xml");
         } catch (Exception e) {
             throw new ClientFailureException("Logging setup failed!", ExitCodes.LOGGING_ERROR);
         } 

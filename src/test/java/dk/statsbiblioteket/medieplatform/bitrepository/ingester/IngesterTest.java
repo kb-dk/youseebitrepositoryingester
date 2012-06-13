@@ -10,6 +10,7 @@ import org.bitrepository.modify.putfile.TestPutFileMessageFactory;
 import org.bitrepository.protocol.utils.LogbackConfigLoader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class IngesterTest extends DefaultFixtureClientTest {
     public static final String CONFIG_DIR_ARG = "target/test-classes/config";
@@ -26,7 +27,7 @@ public class IngesterTest extends DefaultFixtureClientTest {
         messageFactory = new TestPutFileMessageFactory(settings.getCollectionID());
     }
 
-    //@Test
+    @Test
     public void testClient() throws Exception {
         addDescription("Tests whether a file can be ingested through the client on a single pillar");
         settings.getCollectionSettings().getClientSettings().getPillarIDs().clear();
