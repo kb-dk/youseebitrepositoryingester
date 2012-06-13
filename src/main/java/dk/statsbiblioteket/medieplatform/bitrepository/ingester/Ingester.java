@@ -31,6 +31,8 @@ public class Ingester {
             System.exit(e.getExitCode().getCode());
         }
 
+        System.err.println("Log dir: " + args[CONFIG_DIR_ARG_INDEX]);
+        
         try {
             setupLogging(args[CONFIG_DIR_ARG_INDEX]);
             log.info("Ingest of file requested: " + args);
