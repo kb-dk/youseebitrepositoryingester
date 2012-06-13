@@ -33,6 +33,7 @@ public class UrlClient {
 
         try {
             setupLogging(args[CONFIG_DIR_ARG_INDEX]);
+            log.info("Ingest of file requested: " + args);
             FilePutter putter = new FilePutter(args[CONFIG_DIR_ARG_INDEX], args[FILEID_ARG_INDEX], 
                     args[FILE_LOCATION_ARG_INDEX], args[CHECKSUM_ARG_INDEX], 
                     Long.parseLong(args[FILESIZE_ARG_INDEX]));  

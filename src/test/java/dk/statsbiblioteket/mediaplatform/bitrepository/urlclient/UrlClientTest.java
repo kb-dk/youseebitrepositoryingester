@@ -6,13 +6,15 @@ import org.bitrepository.bitrepositorymessages.PutFileFinalResponse;
 import org.bitrepository.bitrepositorymessages.PutFileRequest;
 import org.bitrepository.client.DefaultFixtureClientTest;
 import org.bitrepository.modify.putfile.TestPutFileMessageFactory;
+import org.bitrepository.protocol.utils.LogbackConfigLoader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.concurrent.TimeUnit;
 
 public class UrlClientTest extends DefaultFixtureClientTest {
-    public static final String CONFIG_DIR_ARG = "src/test/resources/config";
+    public static final String CONFIG_DIR_ARG = "target/testclasses/config";
     public static final String FILEID_ARG = DEFAULT_FILE_ID;
     public static final String FILE_LOCATION_ARG = "file://src/test/resources/test-files/" + DEFAULT_FILE_ID;
     public static final String CHECKSUM_ARG = "AA";
@@ -20,12 +22,16 @@ public class UrlClientTest extends DefaultFixtureClientTest {
 
     protected TestPutFileMessageFactory messageFactory;
 
+    @Override
+    protected
+
     @BeforeMethod(alwaysRun=true)
     public void initialise() throws Exception {
+        new LogbackConfigLoader(CONFIG_DIR_ARG + "/logback.xml");
         messageFactory = new TestPutFileMessageFactory(settings.getCollectionID());
     }
 
-    //@Test
+    @Test
     public void testClient() throws Exception {
         addDescription("Tests whether a file can be ingested through the client on a single pillar");
         settings.getCollectionSettings().getClientSettings().getPillarIDs().clear();
