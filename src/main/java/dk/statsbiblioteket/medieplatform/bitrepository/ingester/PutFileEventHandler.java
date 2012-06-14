@@ -44,6 +44,9 @@ public class PutFileEventHandler implements EventHandler {
             finish();
             break;
         case COMPONENT_FAILED:
+            finishStatusCode = ExitCodes.CLIENT_PUT_ERROR;
+            finishMessage = "Client failed with: " + event.getInfo();
+            finish();
             break;
         case FAILED:
             finishStatusCode = ExitCodes.CLIENT_PUT_ERROR;
