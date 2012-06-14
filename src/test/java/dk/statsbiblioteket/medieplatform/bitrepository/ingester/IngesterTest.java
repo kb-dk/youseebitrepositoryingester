@@ -27,7 +27,7 @@ public class IngesterTest extends DefaultFixtureClientTest {
         messageFactory = new TestPutFileMessageFactory(settings.getCollectionID());
     }
 
-    @Test
+    //@Test
     public void testClient() throws Exception {
         addDescription("Tests whether a file can be ingested through the client on a single pillar");
         settings.getCollectionSettings().getClientSettings().getPillarIDs().clear();
