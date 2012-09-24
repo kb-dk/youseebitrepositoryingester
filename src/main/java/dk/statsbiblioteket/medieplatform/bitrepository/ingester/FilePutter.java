@@ -11,6 +11,7 @@ import org.bitrepository.common.utils.Base16Utils;
 import org.bitrepository.common.utils.CalendarUtils;
 import org.bitrepository.modify.ModifyComponentFactory;
 import org.bitrepository.modify.putfile.PutFileClient;
+import org.bitrepository.protocol.messagebus.MessageBusManager;
 import org.bitrepository.protocol.security.BasicMessageAuthenticator;
 import org.bitrepository.protocol.security.BasicMessageSigner;
 import org.bitrepository.protocol.security.BasicOperationAuthorizor;
@@ -25,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import javax.jms.JMSException;
 
 /**
  * Class handling putting of a file this includes
@@ -56,7 +59,6 @@ public class FilePutter {
             throws ClientFailureException {
         SettingsProvider settingsLoader = new SettingsProvider(new XMLFileSettingsLoader(configDir), CLIENT_ID);
         settings = settingsLoader.getSettings();
-        //settings.setComponentID(CLIENT_ID);
         this.fileID = fileID;
         if(!fileID.matches(settings.getCollectionSettings().getProtocolSettings().getAllowedFileIDPattern())) {
             throw new ClientFailureException("The fileID is not allowed. FileID must match: " + 
@@ -109,6 +111,17 @@ public class FilePutter {
             throw new ClientFailureException("Client was interrupted", ExitCodes.CLIENT_PUT_ERROR); 
         }
     }
+    
+    /**
+     * Method to shutdown the client properly  
+     */
+    public void shutdown() {
+    	try {
+			MessageBusManager.getMessageBus(settings.getCollectionID()).close();
+		} catch (JMSException e) {
+			log.warn("Failed to shutdown messagebus connection", e);
+		}
+    }    
     
     /**
      * Get the url to be returned to the workflow.  
