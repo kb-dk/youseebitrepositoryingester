@@ -4,10 +4,10 @@ import dk.statsbiblioteket.medieplatform.bitrepository.ingester.ClientExitCodes.
 import org.bitrepository.bitrepositoryelements.ChecksumDataForFileTYPE;
 import org.bitrepository.bitrepositoryelements.ChecksumSpecTYPE;
 import org.bitrepository.bitrepositoryelements.ChecksumType;
-import org.bitrepository.client.exceptions.OperationFailedException;
 import org.bitrepository.common.settings.Settings;
 import org.bitrepository.common.settings.SettingsProvider;
 import org.bitrepository.common.settings.XMLFileSettingsLoader;
+import org.bitrepository.common.utils.Base16Utils;
 import org.bitrepository.common.utils.CalendarUtils;
 import org.bitrepository.modify.ModifyComponentFactory;
 import org.bitrepository.modify.putfile.PutFileClient;
@@ -20,7 +20,6 @@ import org.bitrepository.protocol.security.MessageSigner;
 import org.bitrepository.protocol.security.OperationAuthorizor;
 import org.bitrepository.protocol.security.PermissionStore;
 import org.bitrepository.protocol.security.SecurityManager;
-import org.bitrepository.protocol.utils.Base16Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +54,9 @@ public class FilePutter {
      */
     public FilePutter(String configDir, String fileID, String url, String checksum, long fileSize) 
             throws ClientFailureException {
-        SettingsProvider settingsLoader = new SettingsProvider(new XMLFileSettingsLoader(configDir));
+        SettingsProvider settingsLoader = new SettingsProvider(new XMLFileSettingsLoader(configDir), CLIENT_ID);
         settings = settingsLoader.getSettings();
-        settings.setComponentID(CLIENT_ID);
+        //settings.setComponentID(CLIENT_ID);
         this.fileID = fileID;
         if(!fileID.matches(settings.getCollectionSettings().getProtocolSettings().getAllowedFileIDPattern())) {
             throw new ClientFailureException("The fileID is not allowed. FileID must match: " + 
@@ -98,12 +97,9 @@ public class FilePutter {
         checksumSpec.setChecksumType(ChecksumType.MD5);
         checksumData.setChecksumSpec(checksumSpec);
 
-        try {
-            putFileClient.putFile(fileURL, fileID, fileSize, checksumData, null, handler, "Initial ingest of file");
-        } catch (OperationFailedException e) {
-            // Never happens, OperationFailedException is not thrown any more in the newer versions of the bit
-            // repository.
-        }
+        
+        putFileClient.putFile(fileURL, fileID, fileSize, checksumData, null, handler, "Initial ingest of file");
+        
         try {
             handler.waitForFinish();
             if(handler.getStatusCode() != ExitCodes.SUCCESS) {
