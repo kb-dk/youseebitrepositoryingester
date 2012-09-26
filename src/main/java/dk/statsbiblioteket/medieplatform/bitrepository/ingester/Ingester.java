@@ -25,6 +25,7 @@ public class Ingester {
     private Ingester() {}
     
     public static void main(String[] args) {
+    	int exitCode = -1;
         try {
             verifyInputParams(args);
         } catch (ClientFailureException e) {
@@ -44,20 +45,21 @@ public class Ingester {
             JSONObject obj = new JSONObject();
             try {
                 obj.put("UrlToFile", putter.getUrl());
+                System.out.println(obj.toString());
+                exitCode = ExitCodes.SUCCESS.getCode();
             } catch (JSONException e) {
-                System.exit(ExitCodes.JSON_ERROR.getCode());
+            	exitCode = ExitCodes.JSON_ERROR.getCode();
             }
-            System.out.println(obj.toString());
-            System.exit(ExitCodes.SUCCESS.getCode());
         } catch (ClientFailureException e) {
             log.error("File:" + args[FILEID_ARG_INDEX] + " Failed to ingest file: " + args[FILE_LOCATION_ARG_INDEX], e);
             System.out.println(e.getMessage());
-            System.exit(e.getExitCode().getCode());
+            exitCode = e.getExitCode().getCode();
         } finally {
             if(putter != null) {
             	putter.shutdown();
             }
         }
+        System.exit(exitCode);
     }
     
     /**
