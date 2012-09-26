@@ -54,11 +54,17 @@ public class Ingester {
             log.error("File:" + args[FILEID_ARG_INDEX] + " Failed to ingest file: " + args[FILE_LOCATION_ARG_INDEX], e);
             System.out.println(e.getMessage());
             exitCode = e.getExitCode().getCode();
+        } catch (Exception e) {
+        	log.error("Caught unexpected exception", e);
+        	exitCode = 100;
         } finally {
             if(putter != null) {
+            	log.debug("Shutting down messagebus");
             	putter.shutdown();
+            	log.debug("Finished shutting down messagebus");
             }
         }
+        
         System.exit(exitCode);
     }
     
