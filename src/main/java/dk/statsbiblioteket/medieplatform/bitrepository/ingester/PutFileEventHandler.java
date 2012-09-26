@@ -44,12 +44,11 @@ public class PutFileEventHandler implements EventHandler {
             finish();
             break;
         case COMPONENT_FAILED:
-            finishStatusCode = ExitCodes.CLIENT_PUT_ERROR;
-            finishMessage = "Client failed with: " + event.getInfo();
-            finish();
+        	log.warn(event.toString());
             break;
         case FAILED:
-            finishStatusCode = ExitCodes.CLIENT_PUT_ERROR;
+        	log.error(event.toString());
+        	finishStatusCode = ExitCodes.CLIENT_PUT_ERROR;
             finishMessage = "Client failed with: " + event.getInfo();
             finish();
             break;
@@ -58,6 +57,7 @@ public class PutFileEventHandler implements EventHandler {
         case IDENTIFY_TIMEOUT: 
             break;
         case WARNING:
+        	log.warn(event.toString());
             break;
         }       
     }

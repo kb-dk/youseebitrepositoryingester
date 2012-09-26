@@ -2,7 +2,6 @@ package dk.statsbiblioteket.medieplatform.bitrepository.ingester;
 
 import dk.statsbiblioteket.medieplatform.bitrepository.ingester.ClientExitCodes.ExitCodes;
 
-import org.bitrepository.modify.putfile.conversation.PuttingFile;
 import org.bitrepository.protocol.utils.LogbackConfigLoader;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,8 +41,6 @@ public class Ingester {
                     args[FILE_LOCATION_ARG_INDEX], args[CHECKSUM_ARG_INDEX], 
                     Long.parseLong(args[FILESIZE_ARG_INDEX]));  
             putter.putFile();
-            
-            putter.shutdown();
             JSONObject obj = new JSONObject();
             try {
                 obj.put("UrlToFile", putter.getUrl());
@@ -54,11 +51,12 @@ public class Ingester {
             System.exit(ExitCodes.SUCCESS.getCode());
         } catch (ClientFailureException e) {
             log.error("File:" + args[FILEID_ARG_INDEX] + " Failed to ingest file: " + args[FILE_LOCATION_ARG_INDEX], e);
+            System.out.println(e.getMessage());
+            System.exit(e.getExitCode().getCode());
+        } finally {
             if(putter != null) {
             	putter.shutdown();
             }
-            System.out.println(e.getMessage());
-            System.exit(e.getExitCode().getCode());
         }
     }
     
