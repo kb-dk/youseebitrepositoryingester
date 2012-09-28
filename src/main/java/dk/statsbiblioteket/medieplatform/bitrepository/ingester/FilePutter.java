@@ -127,6 +127,6 @@ public class FilePutter {
      * Get the url to be returned to the workflow.  
      */
     public String getUrl() {
-        return "http://bitrepository.org/" + fileID;
+        return "http://bitfinder.statsbiblioteket.dk/bart/" + fileID;
     }
 }
