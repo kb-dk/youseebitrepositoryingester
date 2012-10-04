@@ -63,14 +63,19 @@ public class PutFileEventHandler implements EventHandler {
     }
 
     private void finish() {
+    	log.trace("Finish method invoked");
         synchronized (finishLock) {
-            finishLock.notifyAll();    
+        	log.trace("Finish method entered synchronized block");
+            finishLock.notifyAll();
+            log.trace("Finish method notified All");            
         }
     }
 
     public void waitForFinish() throws InterruptedException {
         synchronized (finishLock) {
+        	log.trace("Thread waiting for put client to finish");
             finishLock.wait();            
+            log.trace("Put client have indicated it's finished.");
         }
     }
 

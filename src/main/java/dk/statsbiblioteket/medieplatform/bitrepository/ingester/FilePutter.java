@@ -104,6 +104,7 @@ public class FilePutter {
         
         try {
             handler.waitForFinish();
+            log.trace("Done waiting for the client to finish");
             if(handler.getStatusCode() != ExitCodes.SUCCESS) {
                 throw new ClientFailureException(handler.getFinishMessage(), handler.getStatusCode());
             }
