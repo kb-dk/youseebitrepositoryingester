@@ -38,7 +38,7 @@ public class Ingester {
         try {
             setupLogging(args[CONFIG_DIR_ARG_INDEX]);
             log.info("Ingest of file requested: " + args);
-            log.debug("#### Starting client");
+            log.debug("Starting client");
             putter = new FilePutter(args[CONFIG_DIR_ARG_INDEX], args[FILEID_ARG_INDEX], 
                     args[FILE_LOCATION_ARG_INDEX], args[CHECKSUM_ARG_INDEX], 
                     Long.parseLong(args[FILESIZE_ARG_INDEX]));  
@@ -60,9 +60,8 @@ public class Ingester {
         	exitCode = 100;
         } finally {
             if(putter != null) {
-            	log.debug("#### Shutting down messagebus");
+            	log.debug("Shutting down messagebus connection");
             	putter.shutdown();
-            	log.debug("#### Finished shutting down messagebus");
             }
         }
         
