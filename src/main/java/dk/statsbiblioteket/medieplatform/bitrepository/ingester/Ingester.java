@@ -33,7 +33,7 @@ public class Ingester {
             System.exit(e.getExitCode().getCode());
         }
         FilePutter putter = null;
-        System.err.println("Log dir: " + args[CONFIG_DIR_ARG_INDEX]);
+        System.err.println("Config dir: " + args[CONFIG_DIR_ARG_INDEX]);
         
         try {
             setupLogging(args[CONFIG_DIR_ARG_INDEX]);
