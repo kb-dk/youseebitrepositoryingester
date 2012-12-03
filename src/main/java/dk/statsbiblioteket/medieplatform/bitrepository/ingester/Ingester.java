@@ -8,7 +8,11 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * The main executable class for ingesting files in a configured bit repository.
@@ -19,6 +23,7 @@ public class Ingester {
     public static final int FILEID_ARG_INDEX = 2;
     public static final int CHECKSUM_ARG_INDEX = 3;
     public static final int FILESIZE_ARG_INDEX = 4;
+    public static final String INGESTER_PROPERTIES_FILE = "ingester.properties";
 
     private final static Logger log = LoggerFactory.getLogger(Ingester.class);
     
@@ -33,13 +38,14 @@ public class Ingester {
             System.exit(e.getExitCode().getCode());
         }
         FilePutter putter = null;
-        System.err.println("Config dir: " + args[CONFIG_DIR_ARG_INDEX]);
+        Properties properties = null;
         
         try {
             setupLogging(args[CONFIG_DIR_ARG_INDEX]);
+            properties = loadProperties(args[CONFIG_DIR_ARG_INDEX]);
             log.info("Ingest of file requested: " + args);
             log.debug("Starting client");
-            putter = new FilePutter(args[CONFIG_DIR_ARG_INDEX], args[FILEID_ARG_INDEX], 
+            putter = new FilePutter(args[CONFIG_DIR_ARG_INDEX], properties, args[FILEID_ARG_INDEX], 
                     args[FILE_LOCATION_ARG_INDEX], args[CHECKSUM_ARG_INDEX], 
                     Long.parseLong(args[FILESIZE_ARG_INDEX]));  
             putter.putFile();
@@ -125,5 +131,24 @@ public class Ingester {
         } catch (Exception e) {
             throw new ClientFailureException("Logging setup failed!", ExitCodes.LOGGING_ERROR);
         } 
+    }
+    
+    /**
+     * Load properties from configuration file 
+     */
+    private static Properties loadProperties(String configDir) {
+        Properties properties = new Properties();
+        try {
+            String propertiesFile = configDir + "/" + INGESTER_PROPERTIES_FILE;
+            BufferedReader reader = new BufferedReader(new FileReader(propertiesFile));
+            properties.load(reader);
+            return properties;
+/*            logFile = properties.getProperty(LOGFILE);
+            privateKeyFile = properties.getProperty(PRIVATE_KEY_FILE);
+            clientID = properties.getProperty(CLIENT_ID);*/
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 }

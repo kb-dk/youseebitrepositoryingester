@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
 
 import javax.jms.JMSException;
 
@@ -38,8 +39,12 @@ import javax.jms.JMSException;
  */
 public class FilePutter {
 
-    private final static String CLIENT_ID = "url-client";
-    private final static String CLIENT_CERTIFICATE_FILE = "client-certificate.pem";
+    private final static String CLIENT_ID_PROPERTY 
+        = "dk.statsbiblioteket.medieplatform.bitrepository.clientid";
+    private final static String CLIENT_CERTIFICATE_PROPERTY 
+        = "dk.statsbiblioteket.medieplatform.bitrepository.clientcertificatefile";
+    private final static String BASE_URL_PROPERTY 
+        = "dk.statsbiblioteket.medieplatform.bitrepository.baseurl";
     
     private final Logger log = LoggerFactory.getLogger(getClass());
     
@@ -48,6 +53,7 @@ public class FilePutter {
     private final String checksum;
     private final long fileSize;
     private final Settings settings;
+    private final Properties properties;
     
     private final PutFileClient putFileClient;
     
@@ -55,10 +61,13 @@ public class FilePutter {
      * Constructor. Validates inputs as part of the construction process. 
      * @throws ClientFailureException in case of illegal inputs. 
      */
-    public FilePutter(String configDir, String fileID, String url, String checksum, long fileSize) 
-            throws ClientFailureException {
-        SettingsProvider settingsLoader = new SettingsProvider(new XMLFileSettingsLoader(configDir), CLIENT_ID);
+    public FilePutter(String configDir, Properties properties, String fileID, String url, String checksum, 
+            long fileSize) throws ClientFailureException {
+        SettingsProvider settingsLoader = new SettingsProvider(new XMLFileSettingsLoader(configDir),
+                properties.getProperty(CLIENT_ID_PROPERTY));
         settings = settingsLoader.getSettings();
+        this.properties = properties;
+        verifyProperties();
         this.fileID = fileID;
         if(!fileID.matches(settings.getCollectionSettings().getProtocolSettings().getAllowedFileIDPattern())) {
             throw new ClientFailureException("The fileID is not allowed. FileID must match: " + 
@@ -80,10 +89,10 @@ public class FilePutter {
         MessageSigner signer = new BasicMessageSigner();
         OperationAuthorizor authorizer = new BasicOperationAuthorizor(permissionStore);
         SecurityManager securityManager = new BasicSecurityManager(settings.getCollectionSettings(), 
-                configDir + "/" + CLIENT_CERTIFICATE_FILE,
-                authenticator, signer, authorizer, permissionStore, CLIENT_ID);
+                configDir + "/" + properties.getProperty(CLIENT_CERTIFICATE_PROPERTY),
+                authenticator, signer, authorizer, permissionStore, properties.getProperty(CLIENT_ID_PROPERTY));
         putFileClient = ModifyComponentFactory.getInstance().retrievePutClient(settings, securityManager, 
-                CLIENT_ID);
+                properties.getProperty(CLIENT_ID_PROPERTY));
     }
     
     /**
@@ -128,6 +137,21 @@ public class FilePutter {
      * Get the url to be returned to the workflow.  
      */
     public String getUrl() {
-        return "http://bitfinder.statsbiblioteket.dk/bart/" + fileID;
+        return properties.getProperty(BASE_URL_PROPERTY) + fileID;
+    }
+    
+    /**
+     * Verify required properties 
+     */
+    private void verifyProperties() {
+        if(properties.getProperty(BASE_URL_PROPERTY) == null) {
+            throw new RuntimeException(BASE_URL_PROPERTY + " is null");
+        }
+        if(properties.getProperty(CLIENT_CERTIFICATE_PROPERTY) == null) {
+            throw new RuntimeException(CLIENT_CERTIFICATE_PROPERTY + " is null");
+        }
+        if(properties.getProperty(CLIENT_ID_PROPERTY) == null) {
+            throw new RuntimeException(CLIENT_ID_PROPERTY + " is null");
+        }
     }
 }
