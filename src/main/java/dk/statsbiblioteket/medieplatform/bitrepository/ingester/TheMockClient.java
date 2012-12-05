@@ -22,7 +22,7 @@ public class TheMockClient {
         
         JSONObject obj = new JSONObject();
         try {
-            obj.put("UrlToFile", "http://bitrepository.org/" + args[FILEID_ARG_INDEX]);
+            obj.put("UrlToFile", "http://bitrepository.org/mock/" + args[FILEID_ARG_INDEX]);
         } catch (JSONException e) {
             System.exit(ExitCodes.JSON_ERROR.getCode());
         }

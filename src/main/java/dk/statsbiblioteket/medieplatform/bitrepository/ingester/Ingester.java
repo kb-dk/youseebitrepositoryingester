@@ -143,9 +143,6 @@ public class Ingester {
             BufferedReader reader = new BufferedReader(new FileReader(propertiesFile));
             properties.load(reader);
             return properties;
-/*            logFile = properties.getProperty(LOGFILE);
-            privateKeyFile = properties.getProperty(PRIVATE_KEY_FILE);
-            clientID = properties.getProperty(CLIENT_ID);*/
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
