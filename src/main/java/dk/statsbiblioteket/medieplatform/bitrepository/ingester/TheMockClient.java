@@ -1,6 +1,10 @@
 package dk.statsbiblioteket.medieplatform.bitrepository.ingester;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,15 +18,17 @@ public class TheMockClient {
     private static final int FILEID_ARG_INDEX = 2;
     private static final int CHECKSUM_ARG_INDEX = 3;
     private static final int FILESIZE_ARG_INDEX = 4;
+    public static final String INGESTER_PROPERTIES_FILE = "ingester.properties";
     
     private TheMockClient() {}
     
     public static void main(String[] args) {
         verifyInputParams(args);
-        
+        Properties properties = loadProperties(args[CONFIG_DIR_ARG_INDEX]);
+        String baseUrl = properties.getProperty("dk.statsbiblioteket.medieplatform.bitrepository.baseurl");
         JSONObject obj = new JSONObject();
         try {
-            obj.put("UrlToFile", "http://bitrepository.org/mock/" + args[FILEID_ARG_INDEX]);
+            obj.put("UrlToFile", baseUrl + args[FILEID_ARG_INDEX]);
         } catch (JSONException e) {
             System.exit(ExitCodes.JSON_ERROR.getCode());
         }
@@ -73,6 +79,21 @@ public class TheMockClient {
             System.out.println("Checksum argument contains non hexadecimal value!");
             System.exit(ExitCodes.CHECKSUM_ERROR.getCode());
         } 
+    }
+    
+    /**
+     * Load properties from configuration file 
+     */
+    private static Properties loadProperties(String configDir) {
+        Properties properties = new Properties();
+        try {
+            String propertiesFile = configDir + "/" + INGESTER_PROPERTIES_FILE;
+            BufferedReader reader = new BufferedReader(new FileReader(propertiesFile));
+            properties.load(reader);
+            return properties;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
