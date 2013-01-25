@@ -3,7 +3,7 @@
 
   <groupId>dk.statsbiblioteket.medieplatform</groupId>
   <artifactId>yousee-bitrepository-ingester</artifactId>
-  <version>0.7-SNAPSHOT</version>
+  <version>0.7</version>
 
   <name>Yousee Bitrepository Ingester</name>
 
