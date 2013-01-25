@@ -1,5 +1,6 @@
 package dk.statsbiblioteket.medieplatform.bitrepository.ingester;
 
+
 import org.bitrepository.client.eventhandler.EventHandler;
 import org.bitrepository.client.eventhandler.OperationEvent;
 import org.slf4j.Logger;
@@ -22,10 +23,9 @@ public class PutFileEventHandler implements EventHandler {
         finishLock = new Object();	    
     }
 
-    @Override
     public void handleEvent(OperationEvent event) {
         log.debug("Got event: " + event.toString());
-        switch(event.getType()) {
+        switch(event.getEventType()) {
         case IDENTIFY_REQUEST_SENT:
             break;
         case COMPONENT_IDENTIFIED:
@@ -51,8 +51,6 @@ public class PutFileEventHandler implements EventHandler {
         	finishStatusCode = ExitCodes.CLIENT_PUT_ERROR;
             finishMessage = "Client failed with: " + event.getInfo();
             finish();
-            break;
-        case NO_COMPONENT_FOUND:
             break;
         case IDENTIFY_TIMEOUT: 
             break;
@@ -86,5 +84,11 @@ public class PutFileEventHandler implements EventHandler {
     public String getFinishMessage() {
         return finishMessage;
     }
+
+    /*public void handleEvent(OperationEvent event) {
+        
+        // TODO Auto-generated method stub
+        
+    }*/
 
 }

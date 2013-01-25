@@ -24,14 +24,14 @@ public class IngesterTest extends DefaultFixtureClientTest {
     @BeforeMethod(alwaysRun=true)
     public void initialise() throws Exception {
         new LogbackConfigLoader(CONFIG_DIR_ARG + "/logback.xml");
-        messageFactory = new TestPutFileMessageFactory(componentSettings.getCollectionID());
+        messageFactory = new TestPutFileMessageFactory(settingsForTestClient.getCollectionID());
     }
 
     //@Test
     public void testClient() throws Exception {
         addDescription("Tests whether a file can be ingested through the client on a single pillar");
-        componentSettings.getCollectionSettings().getClientSettings().getPillarIDs().clear();
-        componentSettings.getCollectionSettings().getClientSettings().getPillarIDs().add(PILLAR1_ID);
+        settingsForTestClient.getCollectionSettings().getClientSettings().getPillarIDs().clear();
+        settingsForTestClient.getCollectionSettings().getClientSettings().getPillarIDs().add(PILLAR1_ID);
 
         addStep("Request the ingest of a file.",
                 "A IdentifyPillarsForPutFileRequest should be sent to the pillar.");
@@ -53,31 +53,30 @@ public class IngesterTest extends DefaultFixtureClientTest {
                         args[Ingester.FILEID_ARG_INDEX],
                         Long.parseLong(args[Ingester.FILESIZE_ARG_INDEX]),
                         receivedIdentifyRequestMessage.getAuditTrailInformation(),
-                        TEST_CLIENT_ID
-                ));
+                        settingsForTestClient.getComponentID()
+                        ));
 
         addStep("Send a identify response to from the pillar to the client.",
                 "A PutFileRequest should be received.");
 
         PutFileRequest receivedPutFileRequest = null;
-        if(useMockupPillar()) {
-            IdentifyPillarsForPutFileResponse identifyResponse = messageFactory
-                    .createIdentifyPillarsForPutFileResponse(
-                            receivedIdentifyRequestMessage, PILLAR1_ID, pillar1DestinationId);
-            messageBus.sendMessage(identifyResponse);
-            receivedPutFileRequest = pillar1Destination.waitForMessage(PutFileRequest.class, 10, TimeUnit.SECONDS);
-            Assert.assertEquals(receivedPutFileRequest,
-                    messageFactory.createPutFileRequest(
-                            PILLAR1_ID, pillar1DestinationId,
-                            receivedPutFileRequest.getReplyTo(),
-                            receivedPutFileRequest.getCorrelationID(),
-                            receivedPutFileRequest.getFileAddress(),
-                            receivedPutFileRequest.getFileSize(),
-                            args[Ingester.FILEID_ARG_INDEX],
-                            receivedPutFileRequest.getAuditTrailInformation(),
-                            TEST_CLIENT_ID
-                    ));
-        }
+        IdentifyPillarsForPutFileResponse identifyResponse = messageFactory
+                .createIdentifyPillarsForPutFileResponse(
+                        receivedIdentifyRequestMessage, PILLAR1_ID, pillar1DestinationId);
+        messageBus.sendMessage(identifyResponse);
+        receivedPutFileRequest = pillar1Receiver.waitForMessage(PutFileRequest.class, 10, TimeUnit.SECONDS);
+        Assert.assertEquals(receivedPutFileRequest,
+                messageFactory.createPutFileRequest(
+                        PILLAR1_ID, pillar1DestinationId,
+                        receivedPutFileRequest.getReplyTo(),
+                        receivedPutFileRequest.getCorrelationID(),
+                        receivedPutFileRequest.getFileAddress(),
+                        receivedPutFileRequest.getFileSize(),
+                        args[Ingester.FILEID_ARG_INDEX],
+                        receivedPutFileRequest.getAuditTrailInformation(),
+                        settingsForTestClient.getComponentID()
+
+                        ));
 
         addStep("Send a final response message to the client.",
                 "The call to the main method should return with code 0. " +
