@@ -11,6 +11,7 @@ import org.bitrepository.common.utils.Base16Utils;
 import org.bitrepository.common.utils.CalendarUtils;
 import org.bitrepository.modify.ModifyComponentFactory;
 import org.bitrepository.modify.putfile.PutFileClient;
+import org.bitrepository.protocol.messagebus.MessageBus;
 import org.bitrepository.protocol.messagebus.MessageBusManager;
 import org.bitrepository.protocol.security.BasicMessageAuthenticator;
 import org.bitrepository.protocol.security.BasicMessageSigner;
@@ -45,10 +46,13 @@ public class FilePutter {
         = "dk.statsbiblioteket.medieplatform.bitrepository.clientcertificatefile";
     private final static String BASE_URL_PROPERTY 
         = "dk.statsbiblioteket.medieplatform.bitrepository.baseurl";
+    private final static String COLLECTION_ID_PROPERTY 
+        = "dk.statsbiblioteket.medieplatform.bitrepository.collectionid";
     
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final String fileID;
+    private final String collectionID;
     private final URL fileURL;
     private final String checksum;
     private final long fileSize;
@@ -69,9 +73,10 @@ public class FilePutter {
         this.properties = properties;
         verifyProperties();
         this.fileID = fileID;
-        if(!fileID.matches(settings.getCollectionSettings().getProtocolSettings().getAllowedFileIDPattern())) {
+        collectionID = properties.getProperty(COLLECTION_ID_PROPERTY);
+        if(!fileID.matches(settings.getRepositorySettings().getProtocolSettings().getAllowedFileIDPattern())) {
             throw new ClientFailureException("The fileID is not allowed. FileID must match: " + 
-                    settings.getCollectionSettings().getProtocolSettings().getAllowedFileIDPattern(), 
+                    settings.getRepositorySettings().getProtocolSettings().getAllowedFileIDPattern(), 
                     ExitCodes.ILLEGAL_FILEID);
         }
         
@@ -88,7 +93,7 @@ public class FilePutter {
         MessageAuthenticator authenticator = new BasicMessageAuthenticator(permissionStore);
         MessageSigner signer = new BasicMessageSigner();
         OperationAuthorizor authorizer = new BasicOperationAuthorizor(permissionStore);
-        SecurityManager securityManager = new BasicSecurityManager(settings.getCollectionSettings(), 
+        SecurityManager securityManager = new BasicSecurityManager(settings.getRepositorySettings(), 
                 configDir + "/" + properties.getProperty(CLIENT_CERTIFICATE_PROPERTY),
                 authenticator, signer, authorizer, permissionStore, properties.getProperty(CLIENT_ID_PROPERTY));
         putFileClient = ModifyComponentFactory.getInstance().retrievePutClient(settings, securityManager, 
@@ -109,7 +114,7 @@ public class FilePutter {
         checksumData.setChecksumSpec(checksumSpec);
 
         
-        putFileClient.putFile(fileURL, fileID, fileSize, checksumData, null, handler, "Initial ingest of file");
+        putFileClient.putFile(collectionID, fileURL, fileID, fileSize, checksumData, null, handler, "Initial ingest of file");
         
         try {
             handler.waitForFinish();
@@ -127,7 +132,10 @@ public class FilePutter {
      */
     public void shutdown() {
     	try {
-			MessageBusManager.getMessageBus(settings.getCollectionID()).close();
+    	    MessageBus messageBus = MessageBusManager.getMessageBus();
+            if (messageBus != null) {
+                MessageBusManager.getMessageBus().close();
+            }
 		} catch (JMSException e) {
 			log.warn("Failed to shutdown messagebus connection", e);
 		}
@@ -152,6 +160,9 @@ public class FilePutter {
         }
         if(properties.getProperty(CLIENT_ID_PROPERTY) == null) {
             throw new RuntimeException(CLIENT_ID_PROPERTY + " is null");
+        }
+        if(properties.getProperty(COLLECTION_ID_PROPERTY) == null) {
+            throw new RuntimeException(COLLECTION_ID_PROPERTY + " is null");
         }
     }
 }

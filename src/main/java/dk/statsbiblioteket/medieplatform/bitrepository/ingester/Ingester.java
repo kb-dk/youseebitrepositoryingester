@@ -27,51 +27,62 @@ public class Ingester {
 
     private final static Logger log = LoggerFactory.getLogger(Ingester.class);
     
-    private Ingester() {}
+    private String confDir;
+    private String fileLocation;
+    private String fileID;
+    private String checksum;
+    private Long filesize;
+    private Properties properties;
     
     public static void main(String[] args) {
-    	int exitCode = -1;
         try {
-            verifyInputParams(args);
+            Ingester ingester = new Ingester(args);
+            String url = ingester.ingest(args);
+            writeSuccessOutput(url);
+            System.exit(ExitCodes.SUCCESS.getCode());
         } catch (ClientFailureException e) {
+            log.error("Failure running ingest", e);
             System.out.println(e.getMessage());
             System.exit(e.getExitCode().getCode());
+        } catch (Exception e) {
+            log.error("Caught unexpected exception", e);
+            System.exit(ExitCodes.UNEXPECTED_ERROR.getCode());
         }
+    }
+    
+    public Ingester(String[] args) throws ClientFailureException {
+        verifyAndLoadInputParams(args);
+    }
+    
+    public String ingest(String[] args) throws ClientFailureException {
+        String url = null;
         FilePutter putter = null;
-        Properties properties = null;
         
         try {
-            setupLogging(args[CONFIG_DIR_ARG_INDEX]);
-            properties = loadProperties(args[CONFIG_DIR_ARG_INDEX]);
+            setupLogging(confDir);
+            properties = loadProperties(confDir);
             log.info("Ingest of file requested: " + args);
             log.debug("Starting client");
-            putter = new FilePutter(args[CONFIG_DIR_ARG_INDEX], properties, args[FILEID_ARG_INDEX], 
-                    args[FILE_LOCATION_ARG_INDEX], args[CHECKSUM_ARG_INDEX], 
-                    Long.parseLong(args[FILESIZE_ARG_INDEX]));  
+            putter = new FilePutter(confDir, properties, fileID, fileLocation, checksum, filesize);  
             putter.putFile();
-            JSONObject obj = new JSONObject();
-            try {
-                obj.put("UrlToFile", putter.getUrl());
-                System.out.println(obj.toString());
-                exitCode = ExitCodes.SUCCESS.getCode();
-            } catch (JSONException e) {
-            	exitCode = ExitCodes.JSON_ERROR.getCode();
-            }
-        } catch (ClientFailureException e) {
-            log.error("File:" + args[FILEID_ARG_INDEX] + " Failed to ingest file: " + args[FILE_LOCATION_ARG_INDEX], e);
-            System.out.println(e.getMessage());
-            exitCode = e.getExitCode().getCode();
-        } catch (Exception e) {
-        	log.error("Caught unexpected exception", e);
-        	exitCode = 100;
+            url = putter.getUrl();
         } finally {
             if(putter != null) {
-            	log.debug("Shutting down messagebus connection");
-            	putter.shutdown();
+                log.debug("Shutting down messagebus connection");
+                putter.shutdown();
             }
         }
-        
-        System.exit(exitCode);
+        return url;
+    }
+    
+    private static void writeSuccessOutput(String url) throws ClientFailureException {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("UrlToFile", url);
+            System.out.println(obj.toString());
+        } catch (JSONException e) {
+            throw new ClientFailureException("Failed to generate JSON output", ExitCodes.JSON_ERROR);
+        }
     }
     
     /**
@@ -83,7 +94,7 @@ public class Ingester {
      * - The length and content of the checksum parameter  
      * If validation fails error is printed to console and program is exited. 
      */
-    private static void verifyInputParams(String[] args) throws ClientFailureException {
+    private void verifyAndLoadInputParams(String[] args) throws ClientFailureException {
         if(args.length != 5) {
             throw new ClientFailureException("Unexpected number of arguments, got " + args.length + " but expected 5" + 
                     "Expecting: ConfigDirPath FileUrl FileID FileChecksum FileSize", 
@@ -105,15 +116,16 @@ public class Ingester {
             throw new ClientFailureException("Config dir '" + configDir + "' cannot be read!",
                     ExitCodes.CONFIG_DIR_ERROR);
         }
+        confDir = args[CONFIG_DIR_ARG_INDEX];
         
         try {
-            Long.parseLong(args[FILESIZE_ARG_INDEX]);
+            filesize = Long.parseLong(args[FILESIZE_ARG_INDEX]);
         } catch (Exception e) {
             throw new ClientFailureException("Failed to parse filesize argument " + args[FILESIZE_ARG_INDEX] +
                     " as long.", ExitCodes.FILE_SIZE_ERROR);
         }
-        
-        String checksum = args[CHECKSUM_ARG_INDEX];
+                
+        checksum = args[CHECKSUM_ARG_INDEX];
         if((checksum.length() % 2) != 0) {
             throw new ClientFailureException("Checksum argument " + checksum +
                     " does not contain an even number of characters.",
@@ -123,6 +135,9 @@ public class Ingester {
             throw new ClientFailureException("Checksum argument " + checksum +
                     " contains non hexadecimal value!", ExitCodes.CHECKSUM_ERROR);
         } 
+        
+        fileLocation = args[FILE_LOCATION_ARG_INDEX];
+        fileID = args[FILEID_ARG_INDEX];
     }
     
     private static void setupLogging(String configDir) throws ClientFailureException {

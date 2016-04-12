@@ -15,7 +15,8 @@ public class ClientExitCodes {
         JSON_ERROR (6),
         URL_ERROR (7),
         ILLEGAL_FILEID (8),
-        CLIENT_PUT_ERROR (9);
+        CLIENT_PUT_ERROR (9),
+        UNEXPECTED_ERROR(100);
         
         private final int value;
         ExitCodes(int value) { this.value = value; }

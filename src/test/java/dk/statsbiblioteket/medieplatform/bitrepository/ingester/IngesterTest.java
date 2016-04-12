@@ -24,14 +24,16 @@ public class IngesterTest extends DefaultFixtureClientTest {
     @BeforeMethod(alwaysRun=true)
     public void initialise() throws Exception {
         new LogbackConfigLoader(CONFIG_DIR_ARG + "/logback.xml");
-        messageFactory = new TestPutFileMessageFactory(settingsForTestClient.getCollectionID());
+        messageFactory = new TestPutFileMessageFactory(collectionID);
     }
 
     //@Test
     public void testClient() throws Exception {
         addDescription("Tests whether a file can be ingested through the client on a single pillar");
-        settingsForTestClient.getCollectionSettings().getClientSettings().getPillarIDs().clear();
-        settingsForTestClient.getCollectionSettings().getClientSettings().getPillarIDs().add(PILLAR1_ID);
+        settingsForTestClient.getRepositorySettings().getCollections().getCollection().get(0)
+            .getPillarIDs().getPillarID().clear();
+        settingsForTestClient.getRepositorySettings().getCollections().getCollection().get(0)
+            .getPillarIDs().getPillarID().add(PILLAR1_ID);
 
         addStep("Request the ingest of a file.",
                 "A IdentifyPillarsForPutFileRequest should be sent to the pillar.");
