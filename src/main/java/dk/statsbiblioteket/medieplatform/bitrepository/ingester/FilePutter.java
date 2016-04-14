@@ -5,7 +5,6 @@ import java.net.URL;
 import org.bitrepository.bitrepositoryelements.ChecksumDataForFileTYPE;
 import org.bitrepository.bitrepositoryelements.ChecksumSpecTYPE;
 import org.bitrepository.bitrepositoryelements.ChecksumType;
-import org.bitrepository.common.settings.Settings;
 import org.bitrepository.common.utils.Base16Utils;
 import org.bitrepository.common.utils.CalendarUtils;
 import org.bitrepository.modify.putfile.PutFileClient;
@@ -23,17 +22,17 @@ public class FilePutter {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final String collectionID;
-    private final Settings settings;
+    private final String allowedFileIDPattern;
     private final PutFileClient putFileClient;
     
     /**
      * Constructor.  
      * @param putClient The {@link PutFileClient} to use for putting files
-     * @param settings The {@link Settings} for the bitrepository
+     * @param allowedFileIDPattern The allowed pattern for the fileids
      * @param collectionID The ID of the collection to put files into. 
      */
-    public FilePutter(PutFileClient putClient, Settings settings, String collectionID) {
-        this.settings = settings;
+    public FilePutter(PutFileClient putClient, String allowedFileIDPattern, String collectionID) {
+        this.allowedFileIDPattern = allowedFileIDPattern;
         this.collectionID = collectionID;
         putFileClient = putClient;
     }
@@ -50,9 +49,8 @@ public class FilePutter {
         PutFileEventHandler handler = new PutFileEventHandler();
         ChecksumDataForFileTYPE checksumData = createChecksumData(checksum);
         
-        if(!fileID.matches(settings.getRepositorySettings().getProtocolSettings().getAllowedFileIDPattern())) {
-            throw new ClientFailureException("The fileID is not allowed. FileID must match: " + 
-                    settings.getRepositorySettings().getProtocolSettings().getAllowedFileIDPattern(), 
+        if(!fileID.matches(allowedFileIDPattern)) {
+            throw new ClientFailureException("The fileID is not allowed. FileID must match: " + allowedFileIDPattern, 
                     ExitCodes.ILLEGAL_FILEID);
         }
         

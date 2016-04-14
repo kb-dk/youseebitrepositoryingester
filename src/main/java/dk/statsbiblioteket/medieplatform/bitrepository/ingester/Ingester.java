@@ -103,9 +103,12 @@ public class Ingester {
         log.debug("Creating bitrepository client");
         PutFileClient putFileClient = createPutClient(clientID, certificateLocation, settings);
         
+        String allowedFileIDPattern 
+            = settings.getRepositorySettings().getProtocolSettings().getAllowedFileIDPattern();
+        
         log.debug("Starting put of file: '{}'", fileID);
         try {
-            FilePutter putter = new FilePutter(putFileClient, settings, collectionID);  
+            FilePutter putter = new FilePutter(putFileClient, allowedFileIDPattern, collectionID);  
             putter.putFile(fileID, fileLocation, checksum, filesize);
             return baseUrl + fileID; 
         } finally {

@@ -84,11 +84,4 @@ public class PutFileEventHandler implements EventHandler {
     public String getFinishMessage() {
         return finishMessage;
     }
-
-    /*public void handleEvent(OperationEvent event) {
-        
-        // TODO Auto-generated method stub
-        
-    }*/
-
 }
