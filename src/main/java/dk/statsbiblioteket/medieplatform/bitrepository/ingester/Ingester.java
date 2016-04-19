@@ -1,6 +1,17 @@
 package dk.statsbiblioteket.medieplatform.bitrepository.ingester;
 
-import dk.statsbiblioteket.medieplatform.bitrepository.ingester.ClientExitCodes.ExitCodes;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Properties;
+
+import javax.jms.JMSException;
 
 import org.bitrepository.common.settings.Settings;
 import org.bitrepository.common.settings.SettingsProvider;
@@ -24,15 +35,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Properties;
-
-import javax.jms.JMSException;
+import dk.statsbiblioteket.medieplatform.bitrepository.ingester.ClientExitCodes.ExitCodes;
 
 /**
  * The main executable class for ingesting files in a configured bit repository.
@@ -56,7 +59,7 @@ public class Ingester {
 
     private final static Logger log = LoggerFactory.getLogger(Ingester.class);
     
-    private String confDir;
+    private Path confDir;
     private URL fileLocation;
     private String fileID;
     private String checksum;
@@ -80,10 +83,10 @@ public class Ingester {
     }
     
     public Ingester(String[] args) throws ClientFailureException {
-        log.info("Initializing ingester with args: " + args);
         loadAndVerifyInputParams(args);
         setupLogging(confDir);
         loadAndVerifyProperties(confDir);
+        log.info("Initializing ingester with args: " + Arrays.toString(args));
     }
     
     /**
@@ -93,12 +96,12 @@ public class Ingester {
      */
     public String ingest() throws ClientFailureException {
         String clientID = properties.getProperty(CLIENT_ID_PROPERTY);
-        String certificateLocation = confDir + "/" + properties.getProperty(CLIENT_CERTIFICATE_PROPERTY);
+        String certificateLocation = confDir.resolve(properties.getProperty(CLIENT_CERTIFICATE_PROPERTY)).toString();
         String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
         String collectionID = properties.getProperty(COLLECTION_ID_PROPERTY);
         
         log.debug("Loading bitrepository settings from dir: '{}'", confDir);
-        SettingsProvider settingsLoader = new SettingsProvider(new XMLFileSettingsLoader(confDir), clientID);
+        SettingsProvider settingsLoader = new SettingsProvider(new XMLFileSettingsLoader(confDir.toString()), clientID);
         Settings settings = settingsLoader.getSettings();
         log.debug("Creating bitrepository client");
         PutFileClient putFileClient = createPutClient(clientID, certificateLocation, settings);
@@ -140,7 +143,7 @@ public class Ingester {
         try {
             MessageBus messageBus = MessageBusManager.getMessageBus();
             if (messageBus != null) {
-                MessageBusManager.getMessageBus().close();
+                messageBus.close();
             }
         } catch (JMSException e) {
             log.warn("Failed to shutdown messagebus connection", e);
@@ -158,6 +161,7 @@ public class Ingester {
             obj.put("UrlToFile", url);
             System.out.println(obj.toString());
         } catch (JSONException e) {
+            log.error("Failure serializing to json", e);
             throw new ClientFailureException("Failed to generate JSON output", ExitCodes.JSON_ERROR);
         }
     }
@@ -176,31 +180,32 @@ public class Ingester {
      */
     private void loadAndVerifyInputParams(String[] args) throws ClientFailureException {
         if(args.length != 5) {
-            throw new ClientFailureException("Unexpected number of arguments, got " + args.length + " but expected 5" + 
+            throw new ClientFailureException("Unexpected number of arguments, got " + args.length + " but expected 5. " +
+                    "Arguments received: '" + args + "' " +
                     "Expecting: ConfigDirPath FileUrl FileID FileChecksum FileSize", 
                     ExitCodes.INPUT_PARAM_COUNT_ERROR);
         }
         
-        File configDir = new File(args[CONFIG_DIR_ARG_INDEX]);
-        if(!configDir.exists()) {
+        confDir = Paths.get(args[CONFIG_DIR_ARG_INDEX]);
+        if(!Files.exists(confDir)) {
             throw new ClientFailureException("Config dir (parm " + CONFIG_DIR_ARG_INDEX + ": " +
-                    configDir.getAbsolutePath() + ") doesn't exist!",
+                    confDir.toAbsolutePath() + ") doesn't exist!",
                     ExitCodes.CONFIG_DIR_ERROR);
         }
-        if(!configDir.isDirectory()) {
-            throw new ClientFailureException("Config dir (parm " + CONFIG_DIR_ARG_INDEX + ": " + configDir +
+        if(!Files.isDirectory(confDir)) {
+            throw new ClientFailureException("Config dir (parm " + CONFIG_DIR_ARG_INDEX + ": " + confDir +
                     ") is not a directory!",
                     ExitCodes.CONFIG_DIR_ERROR);
         }
-        if(!configDir.canRead()) {
-            throw new ClientFailureException("Config dir '" + configDir + "' cannot be read!",
+        if(!Files.isReadable(confDir)) {
+            throw new ClientFailureException("Config dir '" + confDir + "' cannot be read!",
                     ExitCodes.CONFIG_DIR_ERROR);
         }
-        confDir = args[CONFIG_DIR_ARG_INDEX];
         
         try {
             filesize = Long.parseLong(args[FILESIZE_ARG_INDEX]);
         } catch (Exception e) {
+            log.error("Failed parsing long value for filesize", e);
             throw new ClientFailureException("Failed to parse filesize argument " + args[FILESIZE_ARG_INDEX] +
                     " as long.", ExitCodes.FILE_SIZE_ERROR);
         }
@@ -220,6 +225,7 @@ public class Ingester {
         try {
             fileLocation = new URL(args[FILE_LOCATION_ARG_INDEX]);
         } catch (MalformedURLException e) {
+            log.error("The URL was malformed, malformed url: '{}'", args[FILE_LOCATION_ARG_INDEX], e);
             throw new ClientFailureException("Malformed URL for fileLocation: " + fileLocation, ExitCodes.URL_ERROR);
         }
         
@@ -231,10 +237,12 @@ public class Ingester {
      * @param configDir String representation of the directory to find 'logback.xml'
      * @throws ClientFailureException in case setup of logging fails 
      */
-    private static void setupLogging(String configDir) throws ClientFailureException {
+    private static void setupLogging(Path configDir) throws ClientFailureException {
         try {
-            new LogbackConfigLoader(configDir + "/logback.xml");
+            String path = configDir.resolve("logback.xml").toString();
+            new LogbackConfigLoader(path);
         } catch (Exception e) {
+            log.error("Failed setting up logging", e);
             throw new ClientFailureException("Logging setup failed!", ExitCodes.LOGGING_ERROR);
         } 
     }
@@ -243,28 +251,29 @@ public class Ingester {
      * Load and verify properties from configuration file
      * @param configDir The configuration dir to load the properties from 
      */
-    private void loadAndVerifyProperties(String configDir) {
+    private void loadAndVerifyProperties(Path configDir) {
         properties = new Properties();
-        try {
-            String propertiesFile = configDir + "/" + INGESTER_PROPERTIES_FILE;
-            BufferedReader reader = new BufferedReader(new FileReader(propertiesFile));
+        Path propertiesPath = configDir.resolve(INGESTER_PROPERTIES_FILE);
+        log.debug("Loading properties from path: '{}'", propertiesPath);
+        
+        try (BufferedReader reader = Files.newBufferedReader(propertiesPath, StandardCharsets.UTF_8)) {
             properties.load(reader);
-                    
-            if(properties.getProperty(BASE_URL_PROPERTY) == null) {
-                throw new RuntimeException(BASE_URL_PROPERTY + " is null");
-            }
-            if(properties.getProperty(CLIENT_CERTIFICATE_PROPERTY) == null) {
-                throw new RuntimeException(CLIENT_CERTIFICATE_PROPERTY + " is null");
-            }
-            if(properties.getProperty(CLIENT_ID_PROPERTY) == null) {
-                throw new RuntimeException(CLIENT_ID_PROPERTY + " is null");
-            }
-            if(properties.getProperty(COLLECTION_ID_PROPERTY) == null) {
-                throw new RuntimeException(COLLECTION_ID_PROPERTY + " is null");
-            }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            log.error("Caught exception while loading properties from  '{}'", propertiesPath, e);
             throw new RuntimeException(e);
+        }            
+        
+        if(properties.getProperty(BASE_URL_PROPERTY) == null) {
+            throw new RuntimeException(BASE_URL_PROPERTY + " is null");
+        }
+        if(properties.getProperty(CLIENT_CERTIFICATE_PROPERTY) == null) {
+            throw new RuntimeException(CLIENT_CERTIFICATE_PROPERTY + " is null");
+        }
+        if(properties.getProperty(CLIENT_ID_PROPERTY) == null) {
+            throw new RuntimeException(CLIENT_ID_PROPERTY + " is null");
+        }
+        if(properties.getProperty(COLLECTION_ID_PROPERTY) == null) {
+            throw new RuntimeException(COLLECTION_ID_PROPERTY + " is null");
         }
     }
     

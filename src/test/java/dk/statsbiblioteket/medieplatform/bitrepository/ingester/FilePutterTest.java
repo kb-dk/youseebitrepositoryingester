@@ -3,6 +3,8 @@ package dk.statsbiblioteket.medieplatform.bitrepository.ingester;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -17,7 +19,9 @@ import org.bitrepository.client.eventhandler.CompleteEvent;
 import org.bitrepository.client.eventhandler.EventHandler;
 import org.bitrepository.client.eventhandler.OperationFailedEvent;
 import org.bitrepository.modify.putfile.PutFileClient;
-import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -37,24 +41,29 @@ public class FilePutterTest {
         URL testFileLocation = new URL("file:///yousee-work/files/test");
         String testChecksum = "ab";
         
-        FilePutter filePutter = new FilePutter(putClient, ALLOWED_FILE_ID_PATTERN, TEST_COLLECTION_ID);
-        FilePutterRunner runner = new FilePutterRunner(filePutter, GOOD_TEST_FILEID, testFileLocation, testChecksum, 0L);
-        Thread t = new Thread(runner);
-        t.start();
+        PutFileEventHandler eventHandlerForTest = new PutFileEventHandler();
+        /* Setup putClient mock to stimulate eventhandler upon calling put */
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                CompleteEvent firstFileComplete = new CompleteEvent(TEST_COLLECTION_ID, null);
+                firstFileComplete.setFileID(GOOD_TEST_FILEID);
+                eventHandlerForTest.handleEvent(firstFileComplete);
+                return null;
                 
-        ArgumentCaptor<EventHandler> eventHandlerCaptor = ArgumentCaptor.forClass(EventHandler.class);
+            }
+        }).when(putClient).putFile(any(String.class), any(URL.class), any(String.class), any(Long.class), 
+                any(ChecksumDataForFileTYPE.class), any(ChecksumSpecTYPE.class), 
+                any(EventHandler.class), any(String.class));
+        
+        FilePutter filePutter = Mockito.spy(new FilePutter(putClient, ALLOWED_FILE_ID_PATTERN, TEST_COLLECTION_ID));
+        
+        doReturn(eventHandlerForTest).when(filePutter).getEventHandler();
+        
+        filePutter.putFile(GOOD_TEST_FILEID, testFileLocation, testChecksum, 0L);
+        
         verify(putClient, timeout(3000).times(1)).putFile(eq(TEST_COLLECTION_ID), eq(testFileLocation), 
                 eq(GOOD_TEST_FILEID), eq(0L), any(ChecksumDataForFileTYPE.class), (ChecksumSpecTYPE) isNull(), 
-                eventHandlerCaptor.capture(), any(String.class));
-        
-        CompleteEvent firstFileComplete = new CompleteEvent(TEST_COLLECTION_ID, null);
-        firstFileComplete.setFileID(GOOD_TEST_FILEID);
-        eventHandlerCaptor.getValue().handleEvent(firstFileComplete);
-        
-        t.join(3000);
-        
-        Assert.assertTrue(runner.finished);
-        Assert.assertNull(runner.exception);
+                eq(eventHandlerForTest), any(String.class));
         
         verifyNoMoreInteractions(putClient);
     }
@@ -66,25 +75,35 @@ public class FilePutterTest {
         URL testFileLocation = new URL("file:///yousee-work/files/test");
         String testChecksum = "ab";
         
-        FilePutter filePutter = new FilePutter(putClient, ALLOWED_FILE_ID_PATTERN, TEST_COLLECTION_ID);
-        FilePutterRunner runner = new FilePutterRunner(filePutter, GOOD_TEST_FILEID, testFileLocation, testChecksum, 0L);
-        Thread t = new Thread(runner);
-        t.start();
+        PutFileEventHandler eventHandlerForTest = new PutFileEventHandler();
+        /* Setup putClient mock to stimulate eventhandler upon calling put */
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                OperationFailedEvent failureEvent = new OperationFailedEvent(TEST_COLLECTION_ID, null, null);
+                failureEvent.setFileID(GOOD_TEST_FILEID);
+                eventHandlerForTest.handleEvent(failureEvent);
+                return null;
                 
-        ArgumentCaptor<EventHandler> eventHandlerCaptor = ArgumentCaptor.forClass(EventHandler.class);
+            }
+        }).when(putClient).putFile(any(String.class), any(URL.class), any(String.class), any(Long.class), 
+                any(ChecksumDataForFileTYPE.class), any(ChecksumSpecTYPE.class), 
+                any(EventHandler.class), any(String.class));
+        
+        FilePutter filePutter = Mockito.spy(new FilePutter(putClient, ALLOWED_FILE_ID_PATTERN, TEST_COLLECTION_ID));
+        
+        doReturn(eventHandlerForTest).when(filePutter).getEventHandler();
+        
+        try {
+            filePutter.putFile(GOOD_TEST_FILEID, testFileLocation, testChecksum, 0L);
+            Assert.fail("Expected a ClientFailureException");
+        } catch (ClientFailureException e) {
+            Assert.assertEquals(e.getExitCode(), ClientExitCodes.ExitCodes.CLIENT_PUT_ERROR);
+        }
+        
         verify(putClient, timeout(3000).times(1)).putFile(eq(TEST_COLLECTION_ID), eq(testFileLocation), 
                 eq(GOOD_TEST_FILEID), eq(0L), any(ChecksumDataForFileTYPE.class), (ChecksumSpecTYPE) isNull(), 
-                eventHandlerCaptor.capture(), any(String.class));
+                eq(eventHandlerForTest), any(String.class));
         
-        OperationFailedEvent failureEvent = new OperationFailedEvent(TEST_COLLECTION_ID, null, null);
-        failureEvent.setFileID(GOOD_TEST_FILEID);
-        eventHandlerCaptor.getValue().handleEvent(failureEvent);
-        
-        t.join(3000);
-        
-        Assert.assertTrue(runner.finished);
-        Assert.assertNotNull(runner.exception);
-        Assert.assertEquals(runner.exception.getExitCode(), ClientExitCodes.ExitCodes.CLIENT_PUT_ERROR);        
         verifyNoMoreInteractions(putClient);
     }
     
@@ -98,40 +117,11 @@ public class FilePutterTest {
         FilePutter filePutter = new FilePutter(putClient, ALLOWED_FILE_ID_PATTERN, TEST_COLLECTION_ID);
         try {
             filePutter.putFile(BAD_TEST_FILEID, testFileLocation, testChecksum, 0L);
+            Assert.fail("Expected a ClientFailureException");
         } catch (ClientFailureException e) {
             Assert.assertEquals(e.getExitCode(), ClientExitCodes.ExitCodes.ILLEGAL_FILEID);
         }
         verifyNoMoreInteractions(putClient);
     }
-    
-    /*
-     * Work-around to get access via an ArgumentCaptor when dealing with asynchronious code. 
-     */
-    private class FilePutterRunner implements Runnable {
-        boolean finished = false;
-        ClientFailureException exception = null;
-        
-        FilePutter putter;
-        String fileID;
-        URL fileLocation;
-        String checksum;
-        long size;
 
-        public FilePutterRunner(FilePutter putter, String fileID, URL location, String checksum, long size) {
-            this.putter = putter;
-            this.fileID = fileID;
-            this.fileLocation = location;
-            this.checksum = checksum;
-            this.size = size;
-        }
-        
-        public void run() {
-            try {
-                putter.putFile(fileID, fileLocation, checksum, size);
-            } catch (ClientFailureException e) {
-                exception = e;
-            }
-            finished = true;
-        }
-    }
 }

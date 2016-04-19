@@ -27,14 +27,14 @@ public class FilePutter {
     
     /**
      * Constructor.  
-     * @param putClient The {@link PutFileClient} to use for putting files
+     * @param putFileClient The {@link PutFileClient} to use for putting files
      * @param allowedFileIDPattern The allowed pattern for the fileids
      * @param collectionID The ID of the collection to put files into. 
      */
-    public FilePutter(PutFileClient putClient, String allowedFileIDPattern, String collectionID) {
+    public FilePutter(PutFileClient putFileClient, String allowedFileIDPattern, String collectionID) {
         this.allowedFileIDPattern = allowedFileIDPattern;
         this.collectionID = collectionID;
-        putFileClient = putClient;
+        this.putFileClient = putFileClient;
     }
     
     /**
@@ -46,14 +46,14 @@ public class FilePutter {
      * @throws ClientFailureException in case of failure 
      */
     public void putFile(String fileID, URL fileLocation, String checksum, long fileSize) throws ClientFailureException {
-        PutFileEventHandler handler = new PutFileEventHandler();
         ChecksumDataForFileTYPE checksumData = createChecksumData(checksum);
         
         if(!fileID.matches(allowedFileIDPattern)) {
-            throw new ClientFailureException("The fileID is not allowed. FileID must match: " + allowedFileIDPattern, 
-                    ExitCodes.ILLEGAL_FILEID);
+            throw new ClientFailureException("The fileID '" + fileID +  "' is not allowed. FileID must match: " 
+                    + allowedFileIDPattern, ExitCodes.ILLEGAL_FILEID);
         }
         
+        PutFileEventHandler handler = getEventHandler();
         putFileClient.putFile(collectionID, fileLocation, fileID, fileSize, checksumData, null, handler, 
                 "Initial ingest of file");
         
@@ -64,8 +64,17 @@ public class FilePutter {
                 throw new ClientFailureException(handler.getFinishMessage(), handler.getStatusCode());
             }
         } catch (InterruptedException e) {
+            log.error("Client was interrupted while waiting for finish", e);
             throw new ClientFailureException("Client was interrupted", ExitCodes.CLIENT_PUT_ERROR); 
         }
+    }
+    
+    /**
+     * Method to get a new event handler for an put operation
+     * @return {@link PutFileEventHandler} a fresh eventhandler 
+     */
+    protected PutFileEventHandler getEventHandler() {
+        return new PutFileEventHandler();
     }
     
     /**
