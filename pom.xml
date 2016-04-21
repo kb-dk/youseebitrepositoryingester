@@ -3,7 +3,7 @@
 
   <groupId>dk.statsbiblioteket.medieplatform</groupId>
   <artifactId>yousee-bitrepository-ingester</artifactId>
-  <version>0.9-SNAPSHOT</version>
+  <version>0.8-SNAPSHOT</version>
 
   <name>Yousee Bitrepository Ingester</name>
 
@@ -50,7 +50,6 @@
     <url>https://github.com/statsbiblioteket/youseebitrepositoryingester</url>
     <connection>scm:git:git://github.com/statsbiblioteket/youseebitrepositoryingester.git</connection>
     <developerConnection>scm:git:git@github.com:statsbiblioteket/youseebitrepositoryingester.git</developerConnection>
-    <tag>HEAD</tag>
   </scm>
 
   <dependencies>
