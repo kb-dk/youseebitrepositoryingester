@@ -2,6 +2,7 @@ package dk.statsbiblioteket.medieplatform.bitrepository.ingester;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -95,7 +96,7 @@ public class Ingester {
      * @throws ClientFailureException In case of failure putting the file. 
      */
     public String ingest() throws ClientFailureException {
-        String clientID = properties.getProperty(CLIENT_ID_PROPERTY);
+        String clientID = generateClienID(properties.getProperty(CLIENT_ID_PROPERTY));
         String certificateLocation = confDir.resolve(properties.getProperty(CLIENT_CERTIFICATE_PROPERTY)).toString();
         String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
         String collectionID = properties.getProperty(COLLECTION_ID_PROPERTY);
@@ -117,6 +118,20 @@ public class Ingester {
         } finally {
             shutdown();
         }
+    }
+    
+    /**
+     * Method to generate a randomized clientID based on a base. 
+     * The randomized clientID is needed to support multiple concurrent running clients, 
+     * as JMS specification prohibits multiple connections with the same clientID. 
+     * @param baseClientID The base part of the client ID, i.e. the fixed part of the ID upon which 
+     *        to add the random part.
+     * @return the radomized clientID 
+     */
+    private String generateClienID(String baseClientID) {
+        String PID = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+        
+        return baseClientID + "-" + PID;
     }
     
     /**
