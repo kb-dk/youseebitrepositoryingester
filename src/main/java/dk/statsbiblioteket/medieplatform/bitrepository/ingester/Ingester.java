@@ -96,7 +96,7 @@ public class Ingester {
      * @throws ClientFailureException In case of failure putting the file. 
      */
     public String ingest() throws ClientFailureException {
-        String clientID = generateClienID(properties.getProperty(CLIENT_ID_PROPERTY));
+        String clientID = generateClientID(properties.getProperty(CLIENT_ID_PROPERTY));
         String certificateLocation = confDir.resolve(properties.getProperty(CLIENT_CERTIFICATE_PROPERTY)).toString();
         String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
         String collectionID = properties.getProperty(COLLECTION_ID_PROPERTY);
@@ -121,15 +121,25 @@ public class Ingester {
     }
     
     /**
-     * Method to generate a randomized clientID based on a base. 
-     * The randomized clientID is needed to support multiple concurrent running clients, 
+     * Method to generate a unique clientID based on a base. 
+     * The unique clientID is needed to support multiple concurrent running clients, 
      * as JMS specification prohibits multiple connections with the same clientID. 
      * @param baseClientID The base part of the client ID, i.e. the fixed part of the ID upon which 
-     *        to add the random part.
-     * @return the radomized clientID 
+     *        to add the unique part.
+     * @return the unique clientID 
      */
-    private String generateClienID(String baseClientID) {
+    private String generateClientID(String baseClientID) {
         String PID = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+        try {
+            int i = Integer.parseInt(PID);
+        } catch (NumberFormatException e) {
+            /* Attempt to catch if getName changes the expected result. Not fool proof though.
+             * See http://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id
+             * If this code gets updated to Java 9, go for the new way of obtaining PID.
+            */
+            log.error("Tried to parse what should be the process-id but it was not an integer.", e);
+            throw new RuntimeException(e);
+        }
         
         return baseClientID + "-" + PID;
     }
